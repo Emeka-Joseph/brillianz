@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · {{ _("Careers") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/site-team.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <a href="{{ url_for('public.careers') }}">{{ _("Careers") }}</a> / <span>{{ job.title }}</span></div>
+    <span class="code-pill">{{ job.department.name if job.department else _("General") }} · {{ job.location }} · {{ _(job.employment_type) }}</span>
+    <h1>{{ job.title }}</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container detail">
+    <div data-reveal>
+      <span class="eyebrow">{{ _("The role") }}</span>
+      <p class="lead">{{ job.description }}</p>
+      {% if job.requirements %}
+      <span class="eyebrow" style="margin-top:20px">{{ _("Requirements") }}</span>
+      <ul class="feature-list" style="grid-template-columns:1fr">
+        {% for r in job.requirements.splitlines() if r.strip() %}<li>{{ icon("check") }} {{ r }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    <form class="form-card" method="post" enctype="multipart/form-data" data-reveal="right">
+      {{ csrf_field() }}
+      <h3 style="font-size:22px">{{ _("Apply now") }}</h3>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="field"><label for="full_name">{{ _("Full name") }} *</label><input id="full_name" name="full_name" required></div>
+        <div class="field"><label for="email">{{ _("Email") }} *</label><input id="email" name="email" type="email" dir="ltr" required></div>
+        <div class="field"><label for="phone">{{ _("Phone") }}</label><input id="phone" name="phone" type="tel" dir="ltr"></div>
+        <div class="field"><label for="nationality">{{ _("Nationality") }}</label><input id="nationality" name="nationality"></div>
+        <div class="field"><label for="experience_years">{{ _("Years of experience") }}</label><input id="experience_years" name="experience_years" type="number" min="0"></div>
+        <div class="field"><label for="cv">{{ _("CV (PDF/Word/image, max 8MB)") }}</label><input id="cv" name="cv" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+        <div class="field"><label for="cover_letter">{{ _("Why should we hire you?") }}</label><textarea id="cover_letter" name="cover_letter"></textarea></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:18px;width:100%;justify-content:center">{{ _("Submit application") }} {{ icon("arrow") }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

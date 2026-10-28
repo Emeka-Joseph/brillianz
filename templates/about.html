@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}{{ _("About us") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/building-management.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <span>{{ _("About") }}</span></div>
+    <h1>{{ _("Protecting and growing") }} <span class="grad-text">{{ _("the value of your property") }}</span></h1>
+    <p>{{ _("Quality property management, cleaning, maintenance and support services from a Kuwait-licensed company built on trust and ethical values.") }}</p>
+  </div>
+  <div class="big-ico" aria-hidden="true">{{ svc_icon("property") }}</div>
+</section>
+
+{# ============ ABOUT US ============ #}
+<section class="section">
+  <div class="container split">
+    <div data-reveal="left">
+      <span class="eyebrow">{{ _("About us") }}</span>
+      <h2 style="font-size:clamp(30px,3.8vw,46px)">{{ _("Owners focus on value. We take care of the rest.") }}</h2>
+      <p class="muted-lg">{{ _("Brillianz Public Facility Management Company W.L.L. is a Kuwait-licensed company delivering professional full property management, building management, cleaning, maintenance, pest control, manpower supply and related services to owners, investors and operators of residential, commercial and mixed-use properties.") }}</p>
+      <p class="muted-lg">{{ _("Our trained supervisors and service teams keep buildings clean, safe, well maintained and ready for occupants, so owners can focus on the value of their property instead of its day-to-day operation.") }}</p>
+      <p class="muted-lg">{{ _("With offices in Al Mirqab and Fahaheel, our teams reach properties across Kuwait every day.") }}</p>
+      <a href="{{ url_for('public.contact') }}" class="btn btn-dark">{{ _("Talk to our team") }} {{ icon("arrow") }}</a>
+    </div>
+    <div class="collage" data-reveal="right">
+      <span class="ring" aria-hidden="true"></span>
+      <div class="ph ph1"><img src="{{ url_for('static', filename='img/facility-management.jpg') }}" alt="{{ _('Office managed by Brillianz') }}" loading="lazy"></div>
+      <div class="ph ph2"><img src="{{ url_for('static', filename='img/team.jpg') }}" alt="{{ _('Brillianz team at work') }}" loading="lazy"></div>
+      <div class="badge-exp"><strong>{{ nav_services|length }}</strong><span>{{ _("services under") }}<br>{{ _("one management") }}</span></div>
+    </div>
+  </div>
+</section>
+
+{# ============ VISION & MISSION ============ #}
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("Where we're heading") }}</span><h2>{{ _("Vision & Mission") }}</h2></div>
+    <div class="vm-grid">
+      <article class="vm-card" data-reveal style="--d:0s">
+        <div class="vm-art vision" aria-hidden="true">
+          <svg viewBox="0 0 320 170">
+            <circle class="vm-sun" cx="160" cy="96" r="40"/>
+            {% for t in [(18,70,26),(50,96,30),(86,60,24),(118,104,34),(158,80,28),(192,112,30),(228,66,26),(260,92,30),(290,58,24)] %}
+            <rect class="vm-tower" x="{{ t[0] }}" y="{{ 170 - t[1] }}" width="{{ t[2] }}" height="{{ t[1] }}" rx="3" style="--i: {{ loop.index0 }}"/>
+            {% endfor %}
+            <g class="vm-eye" transform="translate(160 36)">
+              <path d="M-38 0s15-24 38-24 38 24 38 24-15 24-38 24S-38 0-38 0z"/>
+              <circle r="11"/><circle r="4" class="pupil"/>
+            </g>
+          </svg>
+        </div>
+        <span class="vm-tag">{{ icon("eye") }} {{ _("Our vision") }}</span>
+        <p>{{ _("To be the most trusted facility and property management company in Kuwait, known for reliable service, transparent pricing and well cared-for buildings.") }}</p>
+      </article>
+      <article class="vm-card" data-reveal style="--d:.12s">
+        <div class="vm-art mission" aria-hidden="true">
+          <svg viewBox="0 0 320 170">
+            <g transform="translate(200 85)">
+              <circle r="62" class="ring1"/><circle r="42" class="ring2"/><circle r="22" class="ring1"/><circle r="7" class="bull"/>
+            </g>
+            <g class="vm-arrow"><path d="M30 85h150"/><path d="M30 85l-14-10M30 85l-14 10M42 85l-14-10M42 85l-14 10"/><path d="M180 85l-12-7v14z" class="tip"/></g>
+            <circle class="vm-hit" cx="200" cy="85" r="10"/>
+          </svg>
+        </div>
+        <span class="vm-tag">{{ icon("target") }} {{ _("Our mission") }}</span>
+        <p>{{ _("To deliver quality property management, cleaning, maintenance and support services that protect and enhance the value of our clients' properties, create opportunities for our people and build lasting relationships based on trust and ethical values.") }}</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ============ VALUES ============ #}
+<section class="section section-dark">
+  <span class="blob b1"></span><span class="blob b2"></span>
+  <div class="container">
+    <div class="section-head" data-reveal><span class="eyebrow">{{ _("What drives us") }}</span><h2>{{ _("Our values") }}</h2></div>
+    <div class="values">
+      <div class="value" data-reveal style="--d:0s">{{ icon("shield") }}<h3>{{ _("Trust & ethics") }}</h3><p>{{ _("Lasting relationships built on honesty, fair pricing and promises we keep.") }}</p></div>
+      <div class="value" data-reveal style="--d:.1s">{{ icon("scale") }}<h3>{{ _("Quality before cost") }}</h3><p>{{ _("Providers chosen for capability, reliability and workmanship first.") }}</p></div>
+      <div class="value" data-reveal style="--d:.2s">{{ icon("usercheck") }}<h3>{{ _("Full accountability") }}</h3><p>{{ _("One manager answers for every service, contractor and request.") }}</p></div>
+      <div class="value" data-reveal style="--d:.3s">{{ icon("users") }}<h3>{{ _("Our people") }}</h3><p>{{ _("Creating opportunities for our people through training and supervision.") }}</p></div>
+    </div>
+  </div>
+</section>
+
+{# ============ QUALITY & HSE ============ #}
+<section class="section">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("How we work") }}</span><h2>{{ _("Quality, health, safety & environment") }}</h2></div>
+    <div class="policy-grid">
+      <article class="policy" data-reveal="left">
+        <div class="policy-art quality" aria-hidden="true">
+          <svg viewBox="0 0 220 180">
+            <rect x="40" y="18" width="120" height="150" rx="12" class="pa-board"/>
+            <rect x="72" y="8" width="56" height="22" rx="6" class="pa-clip"/>
+            {% for i in range(4) %}
+            <g class="pa-item" style="--i: {{ i }}"><circle cx="66" cy="{{ 56 + i * 28 }}" r="8" class="pa-dot"/><path d="M62 {{ 56 + i * 28 }}l3 3 6-6" class="pa-tick"/><rect x="82" y="{{ 52 + i * 28 }}" width="{{ [58, 46, 62, 40][i] }}" height="8" rx="4" class="pa-line"/></g>
+            {% endfor %}
+            <g class="pa-lens"><circle cx="160" cy="120" r="24"/><path d="M177 137l20 20"/></g>
+          </svg>
+        </div>
+        <div>
+          <h3>{{ icon("check") }} {{ _("Quality Policy") }}</h3>
+          <p>{{ _("Quality means satisfying our clients on every property we serve. We achieve this through carefully managed work processes, clear service checklists, regular supervisor inspections and prompt feedback from owners and occupants. Records of inspections and service visits are documented and archived, and our service standards are reviewed regularly for continuous improvement.") }}</p>
+        </div>
+      </article>
+      <article class="policy" data-reveal="right">
+        <div class="policy-art hse" aria-hidden="true">
+          <svg viewBox="0 0 220 180">
+            <path d="M110 14 168 34v46c0 40-26 68-58 82-32-14-58-42-58-82V34z" class="hse-shield"/>
+            <g class="hse-hat" transform="translate(110 92)">
+              <path d="M-44 14h88v10h-88z"/><path d="M-36 14a36 36 0 0 1 72 0"/><path d="M-8 -21v-7h16v7"/>
+            </g>
+            <path d="M88 124l14 14 30-30" class="hse-tick"/>
+            <circle class="hse-ring" cx="110" cy="92" r="70"/>
+          </svg>
+        </div>
+        <div>
+          <h3>{{ icon("hardhat") }} {{ _("Health, Safety & Environment") }}</h3>
+          <p>{{ _("Safety comes first for our clients, employees and partners. Our crews are trained to handle cleaning chemicals, pest control products and equipment safely, to use proper protective equipment and to follow all applicable Kuwaiti regulations and client site requirements. We believe accidents are preventable, and safety always takes precedence over speed.") }}</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ============ OUR TEAM ============ #}
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("Our team") }}</span><h2>{{ _("The people who keep your property brilliant") }}</h2></div>
+    <div class="org" data-reveal>
+      <div class="org-top">{{ icon("briefcase") }}<strong>{{ _("Operations Manager") }}</strong></div>
+      <span class="org-stem" aria-hidden="true"></span>
+      <div class="org-grid">
+        {% for ic, role in [("building", "Building and Site Supervisors"), ("sparkles", "Cleaning Supervisors and Cleaners"),
+                            ("hardhat", "Deep Cleaning and Post-Construction Crews"), ("flame", "Restaurant Cleaning Crews"),
+                            ("bug", "Pest Control Technicians"), ("wrench", "Maintenance Technicians (electrical, plumbing, A/C)"),
+                            ("truck", "Waste Collection Crews"), ("users", "Manpower Supply Staff"),
+                            ("headset", "Customer Service and Administration")] %}
+        <div class="org-node" style="--i: {{ loop.index0 }}">{{ icon(ic) }}<span>{{ _(role) }}</span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ============ SERVICES ============ #}
+<section class="section">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("What we deliver") }}</span><h2>{{ _("Our services") }}</h2></div>
+    <div class="why-grid">
+      {% for s in nav_services %}
+      <a class="why why-row" href="{{ url_for('public.service_detail', slug=s.slug) }}" data-reveal style="--d: {{ (loop.index0 % 3) * 0.1 }}s">
+        <span class="why-ico">{{ svc_icon(s.icon) }}</span>
+        <span><h3>{{ tr(s, "name") }}</h3></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("Find us") }}</span><h2>{{ _("Our offices") }}</h2></div>
+    {% include "partials/offices.html" %}
+  </div>
+</section>
+{% endblock %}

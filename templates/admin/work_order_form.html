@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ wo.reference }}{% endblock %}
+{% block heading %}{{ "Work order " ~ wo.reference if wo.id else "New work order" }}{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  {{ csrf_field() }}
+  <input type="hidden" name="inquiry_id" value="{{ wo.inquiry_id or '' }}">
+  <div class="form">
+    <div class="full"><label>Title *</label><input name="title" value="{{ wo.title or '' }}" required></div>
+    <div><label>Service</label><select name="service_id"><option value="">—</option>{% for s in services %}<option value="{{ s.id }}" {{ 'selected' if wo.service_id == s.id }}>{{ s.code }} · {{ s.name }}</option>{% endfor %}</select></div>
+    <div><label>Assign to</label><select name="assignee_id"><option value="">Unassigned</option>{% for e in employees %}<option value="{{ e.id }}" {{ 'selected' if wo.assignee_id == e.id }}>{{ e.full_name }} · {{ e.job_title }}</option>{% endfor %}</select></div>
+    <div class="form-section">Client</div>
+    <div><label>Client name *</label><input name="client_name" value="{{ wo.client_name or '' }}" required></div>
+    <div><label>Client phone</label><input name="client_phone" value="{{ wo.client_phone or '' }}"></div>
+    <div class="full"><label>Location</label><input name="location" value="{{ wo.location or '' }}"></div>
+    <div class="form-section">Scheduling</div>
+    <div><label>Scheduled date</label><input type="date" name="scheduled_date" value="{{ wo.scheduled_date or '' }}"></div>
+    <div><label>Priority</label><select name="priority">{% for p in ["low","normal","high","urgent"] %}<option value="{{ p }}" {{ 'selected' if wo.priority == p }}>{{ p|label }}</option>{% endfor %}</select></div>
+    <div><label>Status</label><select name="status">{% for s in ["new","scheduled","in_progress","completed","cancelled"] %}<option value="{{ s }}" {{ 'selected' if wo.status == s }}>{{ s|label }}</option>{% endfor %}</select></div>
+    <div><label>Contract value (KWD)</label><input type="number" step="0.001" min="0" name="value" value="{{ wo.value or '' }}"></div>
+    <div class="full"><label>Description / instructions</label><textarea name="description">{{ wo.description or '' }}</textarea></div>
+  </div>
+  <div class="actions" style="margin-top:20px">
+    <button class="btn btn-primary">{{ icon("check") }} Save</button>
+    <a class="btn btn-light" href="{{ url_for('admin.work_orders') }}">Cancel</a>
+    {% if wo.completed_at %}<span class="muted">Completed {{ wo.completed_at|dt("%d %b %Y %H:%M") }}</span>{% endif %}
+  </div>
+</form>
+{% if wo.id and current_user.role == 'admin' %}
+<form method="post" action="{{ url_for('admin.work_order_delete', wo_id=wo.id) }}" onsubmit="return confirm('Delete this work order?')" style="margin-top:16px">{{ csrf_field() }}<button class="btn btn-danger btn-sm">{{ icon("trash") }} Delete work order</button></form>
+{% endif %}
+{% endblock %}

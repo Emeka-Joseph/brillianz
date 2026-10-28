@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block title %}Applications{% endblock %}
+{% block heading %}Job applications{% endblock %}
+{% block content %}
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Applicant</th><th>Position</th><th>Experience</th><th>Received</th><th>CV</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for a in applications %}
+    <tr>
+      <td><div class="person"><span class="avatar">{{ a.full_name[:2]|upper }}</span><div><strong>{{ a.full_name }}</strong><small>{{ a.email }} · {{ a.phone or "" }} · {{ a.nationality or "" }}</small></div></div>
+        {% if a.cover_letter %}<details style="margin-top:6px"><summary class="muted" style="cursor:pointer">Cover letter</summary><p style="white-space:pre-line;max-width:420px">{{ a.cover_letter }}</p></details>{% endif %}</td>
+      <td>{{ a.job.title }}</td>
+      <td>{{ a.experience_years ~ " yrs" if a.experience_years is not none else "—" }}</td>
+      <td>{{ a.created_at|dt }}</td>
+      <td>{% if a.cv_filename %}<a class="btn btn-light btn-sm" href="{{ url_for('admin.application_cv', filename=a.cv_filename) }}">{{ icon("download") }}</a>{% else %}—{% endif %}</td>
+      <td><form method="post" action="{{ url_for('admin.application_status', app_id=a.id) }}">{{ csrf_field() }}<select name="status" onchange="this.form.submit()" style="width:130px">{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if a.status == s }}>{{ s|label }}</option>{% endfor %}</select></form></td>
+      <td>{% if a.status != "hired" %}<form method="post" action="{{ url_for('admin.application_hire', app_id=a.id) }}" onsubmit="return confirm('Create an employee record from this application?')">{{ csrf_field() }}<button class="btn btn-ok btn-sm">{{ icon("check") }} Hire</button></form>{% endif %}</td>
+    </tr>
+  {% else %}<tr><td colspan="7" class="empty">No applications yet. They arrive from the Careers page.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

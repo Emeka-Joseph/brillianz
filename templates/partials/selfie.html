@@ -1,0 +1,48 @@
+{# Check-in / check-out selfie thumbnails with map links for an Attendance row #}
+{% from "partials/icons.html" import icon %}
+{% macro selfie_cell(r, name) %}
+<div class="selfie-cell">
+  {% for kind, label, t in [("in", "In", r.check_in), ("out", "Out", r.check_out)] %}
+  {% set photo = r[kind ~ "_selfie"] %}{% set map = r[kind ~ "_map"] %}
+  <figure>
+    {% if photo %}<img class="selfie-thumb" loading="lazy" src="{{ url_for('admin.attendance_selfie', filename=photo) }}" alt="{{ name }} {{ label }}"
+      data-full="{{ url_for('admin.attendance_selfie', filename=photo) }}" data-caption="{{ name }} · checked {{ label|lower }} {{ t|dt('%d %b %Y %H:%M') }}"
+      data-map="{{ map or '' }}" data-acc="{{ r[kind ~ '_accuracy']|int if r[kind ~ '_accuracy'] else '' }}">
+    {% else %}<span class="selfie-none" title="{{ 'Photo deleted after the retention period' if r.selfies_purged_at else 'No selfie' }}">—</span>{% endif %}
+    {{ label }}{% if map %} · <a href="{{ map }}" target="_blank" rel="noopener" title="Open location in Google Maps">map</a>{% endif %}
+  </figure>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro selfie_lightbox() %}
+<div class="modal" id="selfieBox" hidden>
+  <div class="card modal-card lightbox">
+    <h2><span id="sbCaption"></span><button type="button" class="btn btn-light btn-sm" id="sbClose" aria-label="Close">{{ icon("close") }}</button></h2>
+    <img id="sbImg" alt="">
+    <p class="muted" id="sbMeta" style="margin:12px 0 0"></p>
+  </div>
+</div>
+<script>
+(() => {
+  const box = document.getElementById("selfieBox"), close = () => { box.hidden = true; };
+  document.addEventListener("click", ev => {
+    const t = ev.target.closest(".selfie-thumb");
+    if (!t) return;
+    document.getElementById("sbImg").src = t.dataset.full;
+    document.getElementById("sbCaption").textContent = t.dataset.caption;
+    const meta = document.getElementById("sbMeta");
+    meta.innerHTML = "";
+    if (t.dataset.map) {
+      const a = document.createElement("a");
+      a.href = t.dataset.map; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Open location in Google Maps";
+      meta.append(a, t.dataset.acc ? ` (accuracy ±${t.dataset.acc} m)` : "");
+    } else meta.textContent = "No location recorded.";
+    box.hidden = false;
+  });
+  document.getElementById("sbClose").addEventListener("click", close);
+  box.addEventListener("click", ev => { if (ev.target === box) close(); });
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape") close(); });
+})();
+</script>
+{% endmacro %}

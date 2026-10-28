@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Employees{% endblock %}
+{% block heading %}Employees{% endblock %}
+{% block top_actions %}
+{% if current_user.role in ['admin','hr'] %}
+<a class="btn btn-light btn-sm" href="{{ url_for('admin.employees_export', **request.args) }}">{{ icon("download") }} CSV</a>
+<a class="btn btn-primary btn-sm" href="{{ url_for('admin.employee_form') }}">{{ icon("plus") }} Add employee</a>
+{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="toolbar" method="get">
+    <input class="grow" name="q" value="{{ request.args.q or '' }}" placeholder="Search name, employee no., civil ID, phone, job title…">
+    <select name="dept"><option value="">All departments</option>{% for d in departments %}<option value="{{ d.id }}" {{ 'selected' if request.args.dept == d.id|string }}>{{ d.name }}</option>{% endfor %}</select>
+    <select name="status"><option value="">All statuses</option>{% for s in ["active","on_leave","suspended","terminated"] %}<option value="{{ s }}" {{ 'selected' if request.args.status == s }}>{{ s|label }}</option>{% endfor %}</select>
+    <button class="btn btn-dark">{{ icon("search") }} Filter</button>
+  </form>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Employee</th><th>No.</th><th>Department</th><th>Office</th><th>Phone</th><th>Residency</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for e in employees %}
+      <tr onclick="location='{{ url_for('admin.employee_view', emp_id=e.id) }}'" style="cursor:pointer">
+        <td><div class="person"><span class="avatar">{{ e.initials }}</span><div><strong>{{ e.full_name }}</strong><small>{{ e.job_title or "—" }}</small></div></div></td>
+        <td>{{ e.employee_no }}</td>
+        <td>{% if e.department %}<span class="chip-dot" style="background:{{ e.department.color }}"></span> {{ e.department.name }}{% else %}—{% endif %}</td>
+        <td>{{ e.office.label if e.office else "—" }}</td>
+        <td>{{ e.phone or "—" }}</td>
+        <td>{% set d = e.residency_days_left %}{% if d is none %}—{% else %}<span class="badge {{ 'b-rejected' if d < 0 else ('b-pending' if d < 60 else 'b-active') }}">{{ e.residency_expiry|dt }}</span>{% endif %}</td>
+        <td><span class="badge b-{{ e.status }}">{{ e.status|label }}</span></td>
+      </tr>
+    {% else %}<tr><td colspan="7" class="empty">No employees match.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

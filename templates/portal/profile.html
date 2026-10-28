@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block title %}My profile{% endblock %}
+{% block heading %}My profile{% endblock %}
+{% block content %}
+<div class="card hero-card" style="display:flex;gap:22px;align-items:center">
+  <span class="avatar lg">{{ e.initials }}</span>
+  <div><h2 style="font-size:26px;margin:0">{{ e.full_name }}</h2><div class="muted">{{ e.job_title }} · {{ e.department.name if e.department else "" }} · {{ e.employee_no }}</div></div>
+</div>
+<div class="card">
+  <dl class="dl">
+    <dt>Email</dt><dd>{{ e.email or "—" }}</dd>
+    <dt>Phone</dt><dd>{{ e.phone or "—" }}</dd>
+    <dt>Office</dt><dd>{{ e.office.label if e.office else "—" }}{% if e.office %} <small class="muted">({{ e.office.line_list|join(", ") }})</small>{% endif %}</dd>
+    <dt>Hire date</dt><dd>{{ e.hire_date|dt }}</dd>
+    <dt>Civil ID</dt><dd>{{ e.civil_id or "—" }}</dd>
+    <dt>Residency expiry</dt><dd>{{ e.residency_expiry|dt }}</dd>
+  </dl>
+  <p class="muted" style="margin:18px 0 0">Need to update your details? Please contact HR.</p>
+</div>
+{% endblock %}

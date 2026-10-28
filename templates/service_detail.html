@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}{{ tr(service, "name") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block meta %}{{ tr(service, "summary") }}{% endblock %}
+{% block content %}
+{% set ar = is_ar() %}
+{% set second = {
+  "full-property-management": "lobby.jpg", "building-cleaning": "window-cleaning.jpg", "deep-cleaning": "bathroom.jpg",
+  "after-construction-cleaning": "interior.jpg", "restaurant-cleaning": "gloves.jpg", "building-maintenance": "technician.jpg",
+  "pest-control": "pest-control-2.jpg", "waste-collection": "waste-collection-2.jpg", "manpower-supply": "team.jpg",
+  "cleaning-maintenance-contracts": "hero-2.jpg"
+}.get(service.slug, "interior.jpg") %}
+{% set features = service.features_ar if ar and service.features_ar else service.features %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/' ~ service.image) }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <a href="{{ url_for('public.services') }}">{{ _("Services") }}</a> / <span>{{ tr(service, "name") }}</span></div>
+    <span class="code-pill">{{ _("Licensed activity") }}</span>
+    <h1>{{ tr(service, "name") }}</h1>
+    <p>{{ tr(service, "tagline") }}</p>
+    <p class="alt-name" style="font-size:22px;color:rgba(255,255,255,.6)">{{ service.name if ar else service.name_ar }}</p>
+  </div>
+  <div class="big-ico" aria-hidden="true">{{ svc_icon(service.icon) }}</div>
+</section>
+
+<section class="section">
+  <div class="container detail">
+    <div>
+      <p class="lead" data-reveal>{{ tr(service, "summary") }}</p>
+      <p class="muted-lg" data-reveal>{{ tr(service, "description") }}</p>
+
+      {# --- Animated scene tailored to the service --- #}
+      {% set ic = service.icon %}
+      <div class="scene" dir="ltr" data-reveal="zoom" {% if ic in ["sparkle", "broom", "spray", "diamond", "restaurant"] %}data-bubbles{% endif %} aria-hidden="true">
+        {% if ic == "property" %}
+          <div class="orbit-scene">
+            <div class="core">{{ svc_icon("property") }}</div>
+            <div class="ring">{% for o in ["gear", "sparkle", "bug", "recycle", "manpower", "diamond"] %}<span style="--a: {{ loop.index0 * 60 }}deg">{{ svc_icon(o) }}</span>{% endfor %}</div>
+          </div>
+          <span class="lbl">{{ _("Every hard and soft service, coordinated by one manager") }}</span>
+        {% elif ic == "construction" %}
+          <div class="sweep-shine"></div>
+          {% for d in [(14,30,-60),(24,62,40),(36,22,-30),(48,70,60),(62,34,-50),(74,58,30),(86,26,-40)] %}
+          <span class="debris" style="left:{{ d[0] }}%;top:{{ d[1] }}%;--dx:{{ d[2] }}px;animation-delay:{{ loop.index0 * 0.35 }}s"></span>
+          {% endfor %}
+          <div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--teal-500)"><div style="width:120px;height:120px">{{ svc_icon("construction") }}</div></div>
+          <span class="lbl">{{ _("Dust and debris out, handover-ready finish in") }}</span>
+        {% elif ic == "restaurant" %}
+          <div class="sweep-shine"></div>
+          <div class="pan-scene">{{ svc_icon("restaurant") }}</div>
+          <span class="lbl">{{ _("Degreased, sanitized and ready for service") }}</span>
+        {% elif ic == "manpower" %}
+          <div class="crew">
+            {% for c in ["#14b8a6", "#0ea5e9", "#f5b83d", "#14b8a6", "#0ea5e9"] %}
+            <svg viewBox="0 0 60 110" style="--i: {{ loop.index0 }}"><circle cx="30" cy="22" r="13" fill="#f1c7a0"/><path d="M16 17a14 14 0 0 1 28 0z" fill="{{ c }}"/><path d="M10 110V62a20 20 0 0 1 40 0v48z" fill="{{ c }}"/><path d="M22 48h16v62H22z" fill="#fff" opacity=".35"/></svg>
+            {% endfor %}
+          </div>
+          <span class="lbl">{{ _("Trained, briefed and supervised staff, scaled to your site") }}</span>
+        {% elif ic == "contract" %}
+          <div class="contract-scene">
+            <div class="doc">{{ svc_icon("contract") }}</div>
+            <span class="chip k1">{{ icon("file") }} {{ _("One annual contract") }}</span>
+            <span class="chip k2">{{ icon("receipt") }} {{ _("One monthly invoice") }}</span>
+            <span class="chip k3">{{ icon("usercheck") }} {{ _("One point of contact") }}</span>
+          </div>
+          <span class="lbl">{{ _("Cleaning and maintenance under one agreement") }}</span>
+        {% elif ic in ["sparkle", "broom", "spray", "diamond"] %}
+          <div class="sweep-shine"></div>
+          <div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--teal-500)"><div style="width:120px;height:120px">{{ svc_icon(ic) }}</div></div>
+          <span class="lbl">{{ _("Bubbles up, dirt out: supervised crews with checklists") }}</span>
+        {% elif ic == "gear" %}
+          <div class="gear-big" style="left:30%;top:30px;width:150px;height:150px">{{ svc_icon("gear") }}</div>
+          <div class="gear-big" style="left:52%;top:90px;width:110px;height:110px;color:var(--sky-500)">{{ svc_icon("facility") }}</div>
+          <span class="lbl">{{ _("Preventive maintenance keeps every system turning") }}</span>
+        {% elif ic == "guard" %}
+          <div class="radar"><span></span></div>
+          <div class="shield-pulse">{{ icon("shield") }}</div>
+          {% for c in [(12, 16, 1), (78, 14, -1), (18, 62, 1), (82, 60, -1)] %}
+          <div class="cam" style="left:{{ c[0] }}%;top:{{ c[1] }}%;--dir:{{ c[2] }};animation-delay:{{ loop.index0 * 0.7 }}s">
+            <svg viewBox="0 0 48 32"><rect x="2" y="6" width="30" height="16" rx="3" fill="#0f2f57"/><path d="M32 10l12-5v20l-12-5z" fill="#14b8a6"/><circle cx="10" cy="14" r="3" fill="#ef4444" class="rec"/><path d="M16 22v8" stroke="#0f2f57" stroke-width="4"/></svg>
+          </div>
+          {% endfor %}
+          <span class="lbl">{{ _("Guards, patrols and CCTV watching over your property 24/7") }}</span>
+        {% elif ic == "bug" %}
+          <div class="shield-pulse">{{ icon("shield") }}</div>
+          {% for b in [(-260,-120,-40),(240,-110,35),(-220,110,-120),(260,120,140),(30,-200,10),(-40,210,180)] %}
+          <span class="bugger" style="left:calc(50% - 17px);top:calc(50% - 17px);--tx:{{ b[0] }}px;--ty:{{ b[1] }}px;--r:{{ b[2] }}deg;animation-delay:{{ loop.index0 * 0.6 }}s">{{ svc_icon("bug") }}</span>
+          {% endfor %}
+          <span class="lbl">{{ _("A protective barrier pests can't cross") }}</span>
+        {% elif ic == "recycle" %}
+          <div class="road"></div>
+          <svg class="truck" viewBox="0 0 180 90"><rect x="4" y="18" width="104" height="50" rx="6" fill="#14b8a6"/><path d="M108 34h36l22 20v14h-58z" fill="#0f2f57"/><rect x="118" y="40" width="22" height="14" rx="2" fill="#bae6fd"/><circle cx="36" cy="72" r="12" fill="#0b1b2e"/><circle cx="36" cy="72" r="5" fill="#cbd5e1"/><circle cx="136" cy="72" r="12" fill="#0b1b2e"/><circle cx="136" cy="72" r="5" fill="#cbd5e1"/><path d="M44 30l8-8 8 8M52 22v20M38 48h28" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <div class="gear-big" style="right:8%;top:30px;width:90px;height:90px">{{ svc_icon("recycle") }}</div>
+          <span class="lbl">{{ _("Scheduled collection & recycling across Kuwait") }}</span>
+        {% else %}
+          {% for t in [(6,60,120),(16,48,170),(28,70,210),(44,56,150),(58,80,230),(74,52,180),(86,64,130)] %}
+          <div class="tower" style="left:{{ t[0] }}%;width:{{ t[1] }}px;height:{{ t[2] }}px">
+            {% for w in range((t[2] // 34)) %}<i style="left:{{ 10 + (loop.index0 % 2) * 26 }}px;top:{{ 14 + w * 30 }}px;animation-delay:{{ (loop.index0 * 0.7) % 4 }}s"></i>{% endfor %}
+          </div>
+          {% endfor %}
+          <span class="lbl">{{ _("Managing Kuwait's skylines, one building at a time") }}</span>
+        {% endif %}
+      </div>
+
+      <span class="eyebrow" data-reveal>{{ _("What's included") }}</span>
+      <ul class="feature-list">
+        {% for f in features %}
+        <li data-reveal style="--d: {{ loop.index0 * 0.07 }}s">{{ icon("check") }} {{ f }}</li>
+        {% endfor %}
+      </ul>
+
+      <div class="gallery">
+        <div class="ph" data-reveal="left"><img src="{{ url_for('static', filename='img/' ~ service.image) }}" alt="{{ service.image_alt }}" loading="lazy"></div>
+        <div class="ph" data-reveal="right"><img src="{{ url_for('static', filename='img/' ~ second) }}" alt="{{ tr(service, 'name') }}" loading="lazy"></div>
+      </div>
+
+      {% if service.slug == "full-property-management" %}
+      <span class="eyebrow" data-reveal>{{ _("Hard & soft services") }}</span>
+      <h2 style="font-size:clamp(26px,3vw,36px)" data-reveal>{{ _("Whatever the property needs") }}</h2>
+      {% include "partials/hard_soft.html" %}
+      <span class="eyebrow" style="margin-top:50px" data-reveal>{{ _("Full transparency") }}</span>
+      <h2 style="font-size:clamp(26px,3vw,36px)" data-reveal>{{ _("A detailed report at the end of every month") }}</h2>
+      <p class="muted-lg" data-reveal>{{ _("Owners always know exactly what was done on their property. At the end of each month we send a detailed management report that includes:") }}</p>
+      {% include "partials/report_points.html" %}
+      {% endif %}
+    </div>
+
+    <aside class="sidebar">
+      <div class="side-card" data-reveal>
+        <h3 style="font-size:24px">{{ _("Get a quote for this service") }}</h3>
+        <p>{{ _("Free site survey and a proposal tailored to your property.") }}</p>
+        <a href="{{ url_for('public.quote', service=service.slug) }}" class="btn btn-primary" style="width:100%;justify-content:center">{{ _("Request a quote") }} {{ icon("arrow") }}</a>
+        <a href="tel:{{ site.phone|replace(' ', '') }}" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px" dir="ltr">{{ icon("phone") }} {{ site.phone }}</a>
+      </div>
+      <nav class="side-list" data-reveal aria-label="{{ _('All services') }}">
+        {% for s in nav_services %}
+        <a href="{{ url_for('public.service_detail', slug=s.slug) }}" class="{{ 'on' if s.id == service.id }}">{{ svc_icon(s.icon) }} {{ tr(s, "name") }}</a>
+        {% endfor %}
+      </nav>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head" data-reveal><span class="eyebrow">{{ _("Also from Brillianz") }}</span><h2>{{ _("Related services") }}</h2></div>
+    <div class="svc-grid">
+      {% for s in others %}
+      <a href="{{ url_for('public.service_detail', slug=s.slug) }}" class="svc-card" data-tilt data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
+        <div class="media">
+          <span class="img-clip"><img src="{{ url_for('static', filename='img/' ~ s.image) }}" alt="{{ s.image_alt }}" loading="lazy"></span>
+          <span class="ico-wrap">{{ svc_icon(s.icon) }}</span>
+        </div>
+        <div class="body"><h3>{{ tr(s, "name") }}</h3><p>{{ tr(s, "summary") }}</p><span class="more">{{ _("Learn more") }} {{ icon("arrow") }}</span></div>
+        <span class="glare"></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

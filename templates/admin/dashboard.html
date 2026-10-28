@@ -1,0 +1,84 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}Good {{ "morning" if now.hour < 12 else ("afternoon" if now.hour < 17 else "evening") }}, {{ current_user.display_name.split(" ")[0] }}{% endblock %}
+{% block top_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('admin.work_order_form') }}">{{ icon("plus") }} New work order</a>{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <a class="card kpi" href="{{ url_for('admin.employees') }}"><span class="ic">{{ icon("users") }}</span><div><strong>{{ stats.employees }}</strong><span>Employees · {{ stats.active }} active</span></div></a>
+  <a class="card kpi" href="{{ url_for('admin.attendance') }}"><span class="ic gold">{{ icon("clock") }}</span><div><strong>{{ stats.present }} <small style="font-size:14px" class="muted">/ {{ stats.active }}</small></strong><span>Present today · {{ stats.attendance_rate }}%</span></div></a>
+  <a class="card kpi" href="{{ url_for('admin.work_orders') }}"><span class="ic violet">{{ icon("clipboard") }}</span><div><strong>{{ stats.open_orders }}</strong><span>Open work orders</span></div></a>
+  <a class="card kpi" href="{{ url_for('admin.inquiries') }}"><span class="ic pink">{{ icon("inbox") }}</span><div><strong>{{ stats.new_inquiries }}</strong><span>New leads & quotes</span></div></a>
+</div>
+
+<div class="grid g-2-1" style="margin-top:20px">
+  <div class="card"><h2>Attendance · last 14 days</h2><canvas id="trend" height="120"></canvas></div>
+  <div class="card"><h2>Work orders by status</h2><canvas id="status" height="220"></canvas></div>
+</div>
+
+<div class="grid g3" style="margin-top:20px">
+  <div class="card"><h2>Headcount by department</h2><canvas id="dept" height="230"></canvas></div>
+  <div class="card">
+    <h2>Pending leave <a class="btn btn-light btn-sm" href="{{ url_for('admin.leaves') }}">All</a></h2>
+    {% for l in pending_leaves %}
+    <div class="list-row">
+      <span class="avatar">{{ l.employee.initials }}</span>
+      <div class="grow"><strong>{{ l.employee.full_name }}</strong><small>{{ l.leave_type|label }} · {{ l.start_date|dt("%d %b") }} – {{ l.end_date|dt("%d %b") }} ({{ l.days }}d)</small></div>
+      {% if current_user.role in ['admin','hr'] %}
+      <form method="post" action="{{ url_for('admin.leave_review', leave_id=l.id, action='approve') }}">{{ csrf_field() }}<button class="btn btn-ok btn-sm" title="Approve">{{ icon("check") }}</button></form>
+      <form method="post" action="{{ url_for('admin.leave_review', leave_id=l.id, action='reject') }}">{{ csrf_field() }}<button class="btn btn-danger btn-sm" title="Reject">{{ icon("close") }}</button></form>
+      {% endif %}
+    </div>
+    {% else %}<p class="empty">No pending requests 🎉</p>{% endfor %}
+  </div>
+  <div class="card">
+    <h2>Residency expiring ≤ 60 days</h2>
+    {% for e in expiring %}
+    {% set d = e.residency_days_left %}
+    <a class="list-row" href="{{ url_for('admin.employee_view', emp_id=e.id) }}">
+      <span class="avatar">{{ e.initials }}</span>
+      <div class="grow"><strong>{{ e.full_name }}</strong><small>{{ e.nationality }} · {{ e.residency_expiry|dt }}</small></div>
+      <span class="badge {{ 'b-rejected' if d < 0 else ('b-pending' if d < 30 else 'b-new') }}">{{ "Expired" if d < 0 else d ~ " days" }}</span>
+    </a>
+    {% else %}<p class="empty">All residencies valid.</p>{% endfor %}
+  </div>
+</div>
+
+<div class="grid g2" style="margin-top:20px">
+  <div class="card">
+    <h2>Recent work orders <a class="btn btn-light btn-sm" href="{{ url_for('admin.work_orders') }}">All</a></h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ref</th><th>Client</th><th>Assignee</th><th>Status</th></tr></thead>
+      <tbody>{% for w in recent_orders %}
+        <tr><td><a href="{{ url_for('admin.work_order_form', wo_id=w.id) }}"><strong>{{ w.reference }}</strong></a><br><small class="muted">{{ w.service.name if w.service else w.title }}</small></td>
+          <td>{{ w.client_name }}</td><td>{{ w.assignee.full_name if w.assignee else "—" }}</td><td><span class="badge b-{{ w.status }}">{{ w.status|label }}</span></td></tr>
+      {% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h2>Latest website leads <a class="btn btn-light btn-sm" href="{{ url_for('admin.inquiries') }}">All</a></h2>
+    {% for i in recent_inquiries %}
+    <div class="list-row">
+      <span class="avatar" style="background:linear-gradient(120deg,#f472b6,#e11d48)">{{ i.name[:2]|upper }}</span>
+      <div class="grow"><strong>{{ i.name }}</strong> <span class="badge b-{{ i.kind }}">{{ i.kind|label }}</span><small>{{ i.service.name if i.service else "General" }} · {{ i.created_at|dt("%d %b %H:%M") }}</small></div>
+      <span class="badge b-{{ i.status }}">{{ i.status|label }}</span>
+    </div>
+    {% else %}<p class="empty">No leads yet.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const C = {{ charts|safe }};
+  Chart.defaults.font.family = "Plus Jakarta Sans, system-ui, sans-serif";
+  Chart.defaults.color = "#64748b";
+  const ctx = document.getElementById("trend").getContext("2d");
+  const g = ctx.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, "rgba(45,212,191,.35)"); g.addColorStop(1, "rgba(45,212,191,0)");
+  new Chart(ctx, { type: "line", data: { labels: C.trend.map(x => x.d), datasets: [{ label: "Present", data: C.trend.map(x => x.v), borderColor: "#14b8a6", backgroundColor: g, fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: "#fff", borderWidth: 2.5 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: "#eef2f7" } }, x: { grid: { display: false } } } } });
+  new Chart(document.getElementById("status"), { type: "doughnut", data: { labels: C.status.labels, datasets: [{ data: C.status.values, backgroundColor: ["#3b82f6", "#f59e0b", "#8b5cf6", "#14b8a6", "#ef4444"], borderWidth: 0 }] },
+    options: { cutout: "68%", plugins: { legend: { position: "bottom", labels: { boxWidth: 10, usePointStyle: true } } } } });
+  new Chart(document.getElementById("dept"), { type: "bar", data: { labels: C.dept.labels, datasets: [{ data: C.dept.values, backgroundColor: C.dept.colors, borderRadius: 8 }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#eef2f7" } }, y: { grid: { display: false } } } } });
+</script>
+{% endblock %}

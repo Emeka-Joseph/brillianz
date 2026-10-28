@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block title %}My leave{% endblock %}
+{% block heading %}My leave{% endblock %}
+{% block content %}
+<div class="grid g-2-1">
+  <div class="card" style="margin:0">
+    <h2>History</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Type</th><th>Dates</th><th>Days</th><th>Status</th></tr></thead>
+      <tbody>{% for l in e.leaves %}<tr><td>{{ l.leave_type|label }}</td><td>{{ l.start_date|dt("%d %b") }} – {{ l.end_date|dt("%d %b %Y") }}</td><td>{{ l.days }}</td><td><span class="badge b-{{ l.status }}">{{ l.status|label }}</span></td></tr>
+      {% else %}<tr><td colspan="4" class="empty">No leave requests yet.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <form class="card" method="post" style="margin:0;display:grid;gap:12px;align-content:start">{{ csrf_field() }}
+    <h2>Request leave</h2>
+    <div><label>Type</label><select name="leave_type">{% for t in types %}<option value="{{ t }}">{{ t|label }}</option>{% endfor %}</select></div>
+    <div class="grid g2" style="gap:10px"><div><label>From</label><input type="date" name="start_date" required></div><div><label>To</label><input type="date" name="end_date" required></div></div>
+    <div><label>Reason</label><textarea name="reason"></textarea></div>
+    <button class="btn btn-primary">{{ icon("check") }} Submit request</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block title %}Attendance report{% endblock %}
+{% block heading %}Attendance report · {{ month|dt("%B %Y") }}{% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <input type="month" name="month" value="{{ month.strftime('%Y-%m') }}" onchange="this.form.submit()">
+  <span class="muted">{{ working_days }} working days so far (Sun–Thu)</span>
+</form>
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Employee</th><th>Days present</th><th>Late</th><th>Attendance rate</th></tr></thead>
+  <tbody>{% for e, days, late in rows %}{% set rate = ((days / working_days * 100) if working_days else 0)|round|int %}
+    <tr><td><div class="person"><span class="avatar">{{ e.initials }}</span><div><strong>{{ e.full_name }}</strong><small>{{ e.employee_no }}</small></div></div></td>
+      <td>{{ days }}</td><td>{{ late or 0 }}</td>
+      <td style="min-width:200px"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;border-radius:8px;background:#eef2f7;overflow:hidden"><div style="height:100%;width:{{ [rate,100]|min }}%;background:{{ 'linear-gradient(90deg,#2dd4bf,#0ea5e9)' if rate >= 85 else ('#f59e0b' if rate >= 60 else '#ef4444') }}"></div></div><strong>{{ rate }}%</strong></div></td></tr>
+  {% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% set ar = is_ar() %}
+<div class="offices">
+  {% for o in offices %}
+  <article class="office" data-reveal style="--d: {{ loop.index0 * 0.12 }}s">
+    {% if o.map_query %}
+    <iframe loading="lazy" title="{{ _('Map') }}: {{ tr(o, 'label') }}" referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q={{ o.map_query|urlencode }}&z=16&hl={{ 'ar' if ar else 'en' }}&output=embed"></iframe>
+    {% endif %}
+    <div class="body">
+      <span class="pin">{{ icon("pin") }}</span>
+      <div>
+        <span class="tag">{{ _("Main office") if loop.first else _("Branch office") }}</span>
+        <h3>{{ tr(o, "label") }}</h3>
+        <address>{% for l in (o.line_list_ar if ar else o.line_list) %}{{ l }}{% if not loop.last %}<br>{% endif %}{% endfor %}</address>
+        {% if o.hours %}<div class="meta">{{ icon("clock") }} {{ tr(o, "hours") }}</div>{% endif %}
+        {% if o.phone %}<div class="meta">{{ icon("phone") }} <a href="tel:{{ o.phone|replace(' ', '') }}" dir="ltr">{{ o.phone }}</a></div>{% endif %}
+        {% if o.email %}<div class="meta">{{ icon("mail") }} <a href="mailto:{{ o.email }}">{{ o.email }}</a></div>{% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>

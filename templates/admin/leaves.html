@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}Leave requests{% endblock %}
+{% block heading %}Leave requests{% endblock %}
+{% block content %}
+<div class="toolbar">
+  {% for s in ["pending","approved","rejected","all"] %}<a class="btn {{ 'btn-dark' if status == s else 'btn-light' }} btn-sm" href="{{ url_for('admin.leaves', status=s) }}">{{ s|label }}</a>{% endfor %}
+  <span class="grow"></span>
+  {% if current_user.role in ['admin','hr'] %}
+  <details class="drawer" style="position:relative"><summary class="btn btn-primary btn-sm">{{ icon("plus") }} Record leave</summary>
+    <form method="post" action="{{ url_for('admin.leave_new') }}" class="card" style="position:absolute;right:0;z-index:5;width:340px;display:grid;gap:10px">{{ csrf_field() }}
+      <select name="employee_id">{% for e in employees %}<option value="{{ e.id }}">{{ e.full_name }}</option>{% endfor %}</select>
+      <select name="leave_type">{% for t in types %}<option value="{{ t }}">{{ t|label }}</option>{% endfor %}</select>
+      <div class="grid g2" style="gap:8px"><input type="date" name="start_date" required><input type="date" name="end_date" required></div>
+      <input name="reason" placeholder="Reason"><button class="btn btn-primary">Save (approved)</button></form>
+  </details>
+  {% endif %}
+</div>
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Employee</th><th>Type</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for l in leaves %}
+    <tr><td><div class="person"><span class="avatar">{{ l.employee.initials }}</span><div><strong>{{ l.employee.full_name }}</strong><small>{{ l.employee.department.name if l.employee.department else "" }}</small></div></div></td>
+      <td>{{ l.leave_type|label }}</td><td>{{ l.start_date|dt("%d %b") }} – {{ l.end_date|dt("%d %b %Y") }}</td><td>{{ l.days }}</td>
+      <td class="muted">{{ l.reason or "" }}</td>
+      <td><span class="badge b-{{ l.status }}">{{ l.status|label }}</span>{% if l.reviewed_by %}<br><small class="muted">by {{ l.reviewed_by }}</small>{% endif %}</td>
+      <td class="actions">{% if l.status == "pending" and current_user.role in ['admin','hr'] %}
+        <form method="post" action="{{ url_for('admin.leave_review', leave_id=l.id, action='approve') }}">{{ csrf_field() }}<button class="btn btn-ok btn-sm">{{ icon("check") }} Approve</button></form>
+        <form method="post" action="{{ url_for('admin.leave_review', leave_id=l.id, action='reject') }}">{{ csrf_field() }}<button class="btn btn-danger btn-sm">Reject</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="7" class="empty">No {{ status if status != 'all' else '' }} leave requests.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

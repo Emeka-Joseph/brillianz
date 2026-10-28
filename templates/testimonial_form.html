@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Share your experience") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block head %}
+<meta name="robots" content="noindex">
+<style>
+  .rate { display: inline-flex; flex-direction: row-reverse; gap: 6px; }
+  .rate input { position: absolute; opacity: 0; pointer-events: none; }
+  .rate label { font-size: 38px; line-height: 1; color: #cbd5e1; cursor: pointer; transition: color .15s, transform .15s; margin: 0; }
+  .rate label:hover, .rate label:hover ~ label, .rate input:checked ~ label { color: var(--gold-400, #f59e0b); }
+  .rate label:hover { transform: scale(1.12); }
+  .rate input:focus-visible + label { outline: 2px solid var(--teal-400); border-radius: 6px; }
+</style>
+{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/hero-2.jpg') }}')"></div>
+  <div class="container">
+    <h1>{{ _("How did") }} <span class="grad-text">{{ _("we do?") }}</span></h1>
+    <p>{{ _("Dear {name}, thank you for trusting us with your property. A few words about your experience help other customers choose with confidence.", name=invite.client_name) }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:820px">
+    <form class="form-card" method="post" data-reveal>
+      {{ csrf_field() }}
+      <h3 style="font-size:24px">{{ _("Share your experience") }}</h3>
+      <div class="form-grid">
+        <div class="field full"><label>{{ _("Your rating") }}</label>
+          <div class="rate" role="radiogroup" aria-label="{{ _('Your rating') }}">
+            {% for n in range(5, 0, -1) %}
+            <input type="radio" id="r{{ n }}" name="rating" value="{{ n }}" {{ 'checked' if n == 5 }}><label for="r{{ n }}" title="{{ n }} / 5">★</label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field"><label for="author">{{ _("Full name") }} *</label><input id="author" name="author" value="{{ invite.client_name }}" required maxlength="120"></div>
+        <div class="field"><label for="position">{{ _("Position") }}</label><input id="position" name="position" maxlength="60" placeholder="{{ _('e.g. Facility Director') }}"></div>
+        <div class="field full"><label for="company">{{ _("Company / property") }}</label><input id="company" name="company" value="{{ invite.company or '' }}" maxlength="60"></div>
+        <div class="field full"><label for="quote">{{ _("Your testimonial") }} *</label>
+          <textarea id="quote" name="quote" required maxlength="1000" placeholder="{{ _('What did you like about working with us?') }}"></textarea></div>
+      </div>
+      <p class="muted" style="font-size:14px;margin:16px 0 0">{{ _("By sending this you agree that we may show your name, position and testimonial on our website.") }}</p>
+      <button class="btn btn-primary" style="margin-top:18px">{{ _("Send testimonial") }} {{ icon("arrow") }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

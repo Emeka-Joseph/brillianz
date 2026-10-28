@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Thank you") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="notfound">
+  <div>
+    <div style="width:110px;height:110px;margin:0 auto 26px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;animation:pulse 2s infinite">
+      <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" style="stroke-dasharray:30;stroke-dashoffset:30;animation:wipe 1s .3s forwards"/></svg>
+    </div>
+    <h2 style="font-size:44px">{{ _("Thank you, {name}!", name=name) }}</h2>
+    <p style="color:var(--muted);font-size:18px;max-width:52ch;margin:0 auto 28px">{{ _("Your quote request has been received. A Brillianz specialist will call you within one business day to arrange your free site survey.") }}</p>
+    <a class="btn btn-primary" href="{{ url_for('public.home') }}">{{ _("Back to home") }} {{ icon("arrow") }}</a>
+  </div>
+</section>
+{% endblock %}

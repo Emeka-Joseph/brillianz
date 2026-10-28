@@ -1,0 +1,26 @@
+{# "One accountable manager" diagram: the Brillianz manager in the centre, every active service around it.
+   Node positions are pre-computed on a 100x100 grid (radius 40, starting at the top, clockwise). #}
+{% set pts = [(50,10),(73.5,17.6),(88,37.6),(88,62.4),(73.5,82.4),(50,90),(26.5,82.4),(12,62.4),(12,37.6),(26.5,17.6)] %}
+{% set svcs = nav_services[:10] %}
+<div class="hub" data-reveal="zoom" aria-label="{{ _('One accountable manager coordinating every service') }}">
+  <svg class="hub-lines" viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="40" class="hub-orbit"/>
+    <circle cx="50" cy="50" r="47" class="hub-orbit outer"/>
+    {% for s in svcs %}{% set p = pts[loop.index0] %}
+    <line x1="50" y1="50" x2="{{ p[0] }}" y2="{{ p[1] }}" style="--i: {{ loop.index0 }}"/>
+    <circle class="packet" r=".9" style="--x: {{ p[0] - 50 }}px; --y: {{ p[1] - 50 }}px; animation-delay: {{ loop.index0 * 0.45 }}s" cx="50" cy="50"/>
+    {% endfor %}
+  </svg>
+  <div class="hub-core">
+    <span class="pulse"></span><span class="pulse p2"></span>
+    {{ logo("hub") }}
+    <strong>{{ _("One accountable manager") }}</strong>
+    <small>{{ _("sources, coordinates & supervises") }}</small>
+  </div>
+  {% for s in svcs %}{% set p = pts[loop.index0] %}
+  <a class="hub-node" href="{{ url_for('public.service_detail', slug=s.slug) }}" style="left: {{ p[0] }}%; top: {{ p[1] }}%; --i: {{ loop.index0 }}">
+    <span class="dot">{{ svc_icon(s.icon) }}</span>
+    <span class="name">{{ tr(s, "name") }}</span>
+  </a>
+  {% endfor %}
+</div>

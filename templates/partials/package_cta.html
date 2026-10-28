@@ -1,0 +1,12 @@
+{# Closing card for a service grid. Expects `used` = grid slots already taken by cards. #}
+<div class="svc-card svc-cta" data-reveal style="--span3: {{ (3 - used % 3) if used % 3 else 3 }}; --span2: {{ (2 - used % 2) if used % 2 else 2 }}">
+  <div>
+    <span class="eyebrow" style="color:var(--teal-400)">{{ _("Complete property management") }}</span>
+    <h3>{{ _("Every service under one management") }}</h3>
+    <p>{{ _("One accountable manager, one detailed report every month and one consolidated invoice, with no in-house team for you to run.") }}</p>
+  </div>
+  <div class="cta-actions">
+    <a href="{{ url_for('public.quote') }}" class="btn btn-primary">{{ _("Build my package") }} {{ icon("arrow") }}</a>
+    <a href="tel:{{ site.phone|replace(' ', '') }}" class="btn btn-ghost">{{ icon("phone") }} {{ _("Talk to us") }}</a>
+  </div>
+</div>

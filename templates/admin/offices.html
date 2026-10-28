@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}Offices{% endblock %}
+{% block heading %}Office addresses{% endblock %}
+{% macro office_form(o=None) %}
+<form method="post" style="display:grid;gap:10px">{{ csrf_field() }}
+  <input type="hidden" name="id" value="{{ o.id if o else '' }}">
+  <div><label>Label</label><input name="label" value="{{ o.label if o else '' }}" placeholder="e.g. Fahaheel Branch" required></div>
+  <div><label>Label (Arabic)</label><input name="label_ar" value="{{ o.label_ar or '' if o else '' }}" dir="rtl"></div>
+  <div><label>Address (one line per row)</label><textarea name="lines" required>{{ o.lines if o else '' }}</textarea></div>
+  <div><label>Address (Arabic, one line per row)</label><textarea name="lines_ar" dir="rtl">{{ o.lines_ar or '' if o else '' }}</textarea></div>
+  <div class="grid g2" style="gap:10px"><div><label>Phone</label><input name="phone" value="{{ o.phone or '' if o else '' }}"></div><div><label>Email</label><input name="email" value="{{ o.email or '' if o else '' }}"></div></div>
+  <div><label>Opening hours</label><input name="hours" value="{{ o.hours or '' if o else 'Sun – Thu · 8:00 AM – 5:00 PM' }}"></div>
+  <div><label>Opening hours (Arabic)</label><input name="hours_ar" dir="rtl" value="{{ o.hours_ar or '' if o else 'الأحد – الخميس · 8:00 ص – 5:00 م' }}"></div>
+  <div><label>Google Maps search text</label><input name="map_query" value="{{ o.map_query or '' if o else '' }}" placeholder="e.g. Muneera Tower, Fahaheel, Kuwait"></div>
+  <button class="btn btn-primary">{{ icon("check") }} Save office</button>
+</form>
+{% endmacro %}
+{% block content %}
+<p class="muted" style="margin-top:0">These addresses appear in the website header, footer, contact page and maps. The first office is shown as the main office.</p>
+<div class="grid g3">
+  {% for o in items %}
+  <div class="card" style="margin:0">
+    <h2>{{ o.label }} <form method="post" action="{{ url_for('admin.office_delete', off_id=o.id) }}" onsubmit="return confirm('Remove this office?')">{{ csrf_field() }}<button class="btn btn-danger btn-sm">{{ icon("trash") }}</button></form></h2>
+    {{ office_form(o) }}
+  </div>
+  {% endfor %}
+  <div class="card" style="margin:0;border-style:dashed"><h2>Add office</h2>{{ office_form() }}</div>
+</div>
+{% endblock %}

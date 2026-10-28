@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Contact") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/hero-2.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <span>{{ _("Contact") }}</span></div>
+    <h1>{{ _("Let's make your property") }} <span class="grad-text">{{ _("brilliant") }}</span></h1>
+    <p>{{ _("Call, WhatsApp, email or visit one of our two offices. We reply within one business day.") }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container split" style="align-items:start">
+    <div data-reveal="left">
+      <span class="eyebrow">{{ _("Get in touch") }}</span>
+      <h2 style="font-size:clamp(30px,3.6vw,44px)">{{ _("We'd love to hear from you") }}</h2>
+      <p class="muted-lg">{{ _("Whether you own a single villa, a restaurant or a portfolio of buildings, our team will help you find the right service plan.") }}</p>
+      <div class="contact-cards">
+        <a class="why why-row" href="tel:{{ site.phone|replace(' ', '') }}">{{ icon("phone") }}<span><small>{{ _("Call us") }}</small><br><strong dir="ltr">{{ site.phone }}</strong></span></a>
+        {% if site.whatsapp %}<a class="why why-row" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">{{ icon("whatsapp") }}<span><small>{{ _("WhatsApp") }}</small><br><strong dir="ltr">{{ site.phone }}</strong></span></a>{% endif %}
+        <a class="why why-row" href="mailto:{{ site.email }}">{{ icon("mail") }}<span><small>{{ _("General enquiries") }}</small><br><strong>{{ site.email }}</strong></span></a>
+        {% if site.email_ops %}<a class="why why-row" href="mailto:{{ site.email_ops }}">{{ icon("clipboard") }}<span><small>{{ _("Operations") }}</small><br><strong>{{ site.email_ops }}</strong></span></a>{% endif %}
+      </div>
+    </div>
+    <form class="form-card" method="post" data-reveal="right">
+      {{ csrf_field() }}
+      <h3 style="font-size:24px">{{ _("Send us a message") }}</h3>
+      <div class="form-grid">
+        <div class="field"><label for="name">{{ _("Full name") }} *</label><input id="name" name="name" required></div>
+        <div class="field"><label for="company">{{ _("Company") }}</label><input id="company" name="company"></div>
+        <div class="field"><label for="phone">{{ _("Phone") }} *</label><input id="phone" name="phone" type="tel" placeholder="+965" dir="ltr" required></div>
+        <div class="field"><label for="email">{{ _("Email") }}</label><input id="email" name="email" type="email" dir="ltr"></div>
+        <div class="field full"><label for="service_id">{{ _("Service of interest") }}</label>
+          <select id="service_id" name="service_id"><option value="">{{ _("General enquiry") }}</option>{% for s in nav_services %}<option value="{{ s.id }}">{{ tr(s, "name") }}</option>{% endfor %}</select></div>
+        <div class="field full"><label for="message">{{ _("Message") }}</label><textarea id="message" name="message" placeholder="{{ _('Tell us about your property and what you need') }}"></textarea></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:22px">{{ _("Send message") }} {{ icon("arrow") }}</button>
+    </form>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head center" data-reveal><span class="eyebrow">{{ _("Our offices") }}</span><h2>{{ _("Visit us in Al Mirqab or Fahaheel") }}</h2></div>
+    {% include "partials/offices.html" %}
+  </div>
+</section>
+{% endblock %}

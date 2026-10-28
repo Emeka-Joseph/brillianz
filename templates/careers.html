@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Careers") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/team.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <span>{{ _("Careers") }}</span></div>
+    <h1>{{ _("Build a") }} <span class="grad-text">{{ _("brilliant career") }}</span> {{ _("with us") }}</h1>
+    <p>{{ _("Join a growing team of cleaners, technicians, supervisors, crews and support staff who keep Kuwait's buildings at their best.") }}</p>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="why-grid" style="margin-bottom:70px">
+      <div class="why" data-reveal>{{ icon("shield") }}<h3>{{ _("Legal residency & insurance") }}</h3><p>{{ _("Full visa sponsorship, medical insurance and transparent contracts.") }}</p></div>
+      <div class="why" data-reveal style="--d:.1s">{{ icon("chart") }}<h3>{{ _("Training & promotion") }}</h3><p>{{ _("Certified training programmes and a clear path from crew to supervisor.") }}</p></div>
+      <div class="why" data-reveal style="--d:.2s">{{ icon("users") }}<h3>{{ _("Staff welfare") }}</h3><p>{{ _("Paid annual leave, accommodation & transport options and on-time salaries.") }}</p></div>
+    </div>
+    <div class="section-head" data-reveal><span class="eyebrow">{{ _("Open positions") }}</span><h2>{{ _("Current vacancies") }}</h2></div>
+    <div class="jobs">
+      {% for j in jobs %}
+      <article class="job" data-reveal style="--d: {{ loop.index0 * 0.08 }}s">
+        {{ icon("briefcase") }}
+        <div>
+          <h3>{{ j.title }}</h3>
+          <div class="tags"><span>{{ j.department.name if j.department else _("General") }}</span><span>· {{ j.location }}</span><span>· {{ _(j.employment_type) }}</span></div>
+        </div>
+        <a class="btn btn-dark btn-sm" href="{{ url_for('public.career_detail', slug=j.slug) }}">{{ _("View & apply") }} {{ icon("arrow") }}</a>
+      </article>
+      {% else %}
+      <p>{{ _("No open positions right now. Send your CV to {email} and we'll keep it on file.", email=site.email) }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

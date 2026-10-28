@@ -1,0 +1,23 @@
+{# Hard & soft services facilitated under Full Property Management (from the company profile) #}
+{% set hard = [("bulb", "Electrical systems and lighting"), ("droplet", "Plumbing, pumps and water systems"),
+               ("wind", "Air-conditioning and ventilation (HVAC)"), ("elevator", "Lifts and escalators"),
+               ("flame", "Fire fighting and safety systems"), ("roller", "Civil, painting and snagging works"),
+               ("plug", "Generators and building utilities")] %}
+{% set soft = [("sparkles", "Daily and periodic cleaning, deep cleaning"), ("bug", "Pest control and waste collection"),
+               ("users", "Manpower supply and site supervision"), ("shield", "Security, reception and concierge staff"),
+               ("tree", "Landscaping and general upkeep"), ("message", "Tenant and occupant request handling"),
+               ("plus", "Any other service the property requires")] %}
+<div class="hs-grid">
+  {% for title, sub, items, art in [(_("Hard services"), _("Building systems kept safe and running"), hard, "gear"),
+                                     (_("Soft services"), _("Clean, cared-for and well-run spaces"), soft, "sparkle")] %}
+  <div class="hs-card {{ 'soft' if loop.index == 2 }}" data-reveal style="--d: {{ loop.index0 * 0.12 }}s">
+    <div class="hs-head">
+      <span class="hs-art">{{ svc_icon(art) }}</span>
+      <div><h3>{{ title }}</h3><p>{{ sub }}</p></div>
+    </div>
+    <ul>
+      {% for ic, text in items %}<li style="--i: {{ loop.index0 }}">{{ icon(ic) }}<span>{{ _(text) }}</span></li>{% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+</div>

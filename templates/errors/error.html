@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Error") }} {{ code }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="notfound">
+  <div>
+    <h1 class="grad-text">{{ code }}</h1>
+    <p style="color:var(--muted);font-size:18px;max-width:50ch;margin:0 auto 24px">{{ _("You don't have permission to view this page.") if code == 403 else _(message) }}</p>
+    <a class="btn btn-primary" href="{{ url_for('public.home') }}">{{ _("Back to home") }} {{ icon("arrow") }}</a>
+  </div>
+</section>
+{% endblock %}

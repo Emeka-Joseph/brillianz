@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ s.name }}{% endblock %}
+{% block heading %}Edit service · {{ s.code }}{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  {{ csrf_field() }}
+  <div class="form">
+    <div><label>Name (English)</label><input name="name" value="{{ s.name }}" required></div>
+    <div><label>Name (Arabic)</label><input name="name_ar" value="{{ s.name_ar or '' }}" dir="rtl"></div>
+    <div><label>Tagline</label><input name="tagline" value="{{ s.tagline or '' }}"></div>
+    <div><label>Tagline (Arabic)</label><input name="tagline_ar" value="{{ s.tagline_ar or '' }}" dir="rtl"></div>
+    <div><label>Summary (cards)</label><textarea name="summary">{{ s.summary or '' }}</textarea></div>
+    <div><label>Summary (Arabic)</label><textarea name="summary_ar" dir="rtl">{{ s.summary_ar or '' }}</textarea></div>
+    <div><label>Description (detail page)</label><textarea name="description" style="min-height:140px">{{ s.description or '' }}</textarea></div>
+    <div><label>Description (Arabic)</label><textarea name="description_ar" dir="rtl" style="min-height:140px">{{ s.description_ar or '' }}</textarea></div>
+    <div><label>Features (one per line)</label><textarea name="features" style="min-height:160px">{{ s.features|join("\n") }}</textarea></div>
+    <div><label>Features (Arabic, one per line)</label><textarea name="features_ar" dir="rtl" style="min-height:160px">{{ s.features_ar|join("\n") }}</textarea></div>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="is_active" {{ 'checked' if s.is_active }}> Show on website</label>
+  </div>
+  <div class="actions" style="margin-top:18px"><button class="btn btn-primary">{{ icon("check") }} Save</button><a class="btn btn-light" href="{{ url_for('admin.services') }}">Back</a>
+    <a class="btn btn-light" target="_blank" href="{{ url_for('public.service_detail', slug=s.slug) }}">{{ icon("globe") }} View page</a></div>
+</form>
+{% endblock %}

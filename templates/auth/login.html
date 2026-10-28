@@ -1,0 +1,33 @@
+{% from "partials/icons.html" import icon, logo %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Brillianz FM</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+<div class="auth">
+  <div class="art">
+    <div>
+      <h2>Every shift, every site, under control.</h2>
+      <p>The Brillianz staff portal: attendance, leave, work orders, recruitment and client leads in one place.</p>
+    </div>
+  </div>
+  <div class="panel">
+    <form method="post">
+      {{ csrf_field() }}
+      <a href="{{ url_for('public.home') }}" style="display:flex;align-items:center;gap:10px">{{ logo("login") }}<strong style="font-size:18px">Brillianz FM</strong></a>
+      <div><h1 style="font-size:28px;margin:10px 0 4px">Welcome back</h1><p class="muted" style="margin:0">Sign in to the staff portal.</p></div>
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, m in messages %}<div class="flash {{ cat }}" style="animation:none">{{ m }}</div>{% endfor %}{% endwith %}
+      <div><label for="email">Email</label><input id="email" name="email" type="email" required autofocus></div>
+      <div><label for="password">Password</label><input id="password" name="password" type="password" required></div>
+      <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" name="remember"> Keep me signed in</label>
+      <button class="btn btn-primary" style="justify-content:center;padding:13px">Sign in {{ icon("arrow") }}</button>
+      <div class="demo">Demo admin: <code>admin@brillianzfm.com</code> / <code>Admin@123</code><br>Demo employee: <code>employee@brillianzfm.com</code> / <code>Employee@123</code></div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

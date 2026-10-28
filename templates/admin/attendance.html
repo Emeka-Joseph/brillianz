@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% from "partials/selfie.html" import selfie_cell, selfie_lightbox %}
+{% block title %}Attendance{% endblock %}
+{% block heading %}Attendance · {{ day|dt("%A %d %B %Y") }}{% endblock %}
+{% block top_actions %}<a class="btn btn-light btn-sm" href="{{ url_for('admin.attendance_report') }}">{{ icon("chart") }} Monthly report</a>{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <a class="btn btn-light" href="{{ url_for('admin.attendance', day=prev.isoformat()) }}">← {{ prev|dt("%d %b") }}</a>
+  <form method="get" style="display:flex;gap:8px"><input type="date" name="day" value="{{ day.isoformat() }}" onchange="this.form.submit()"></form>
+  <a class="btn btn-light" href="{{ url_for('admin.attendance', day=next.isoformat()) }}">{{ next|dt("%d %b") }} →</a>
+  <a class="btn btn-light" href="{{ url_for('admin.attendance') }}">Today</a>
+  <span class="grow"></span>
+  <span class="muted">{{ records|length }} of {{ employees|length }} recorded</span>
+</div>
+<form class="card" method="post">
+  {{ csrf_field() }}<input type="hidden" name="day" value="{{ day.isoformat() }}">
+  <div class="table-wrap"><table>
+    <thead><tr><th>Employee</th><th>Status</th><th>Check in</th><th>Check out</th><th>Hours</th><th>Selfie & location</th></tr></thead>
+    <tbody>{% for e in employees %}{% set r = records.get(e.id) %}
+      <tr>
+        <td><div class="person"><span class="avatar">{{ e.initials }}</span><div><strong>{{ e.full_name }}</strong><small>{{ e.job_title }}</small></div></div></td>
+        <td><select name="status_{{ e.id }}" style="width:140px">
+          <option value="">— not recorded</option>
+          {% for s in ["present","late","remote","absent"] %}<option value="{{ s }}" {{ 'selected' if r and r.status == s }}>{{ s|label }}</option>{% endfor %}
+        </select></td>
+        <td><input type="time" name="check_in_{{ e.id }}" value="{{ r.check_in.strftime('%H:%M') if r and r.check_in else '' }}" style="width:130px"></td>
+        <td><input type="time" name="check_out_{{ e.id }}" value="{{ r.check_out.strftime('%H:%M') if r and r.check_out else '' }}" style="width:130px"></td>
+        <td>{{ r.hours if r and r.hours else "—" }}</td>
+        <td>{{ selfie_cell(r, e.full_name) if r else "—" }}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  <div style="margin-top:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="btn btn-primary">{{ icon("check") }} Save attendance</button>
+    <span class="muted" style="font-size:13px">Selfies are deleted automatically after {{ retention }} days; times and locations are kept. Click a photo to enlarge.</span></div>
+</form>
+{{ selfie_lightbox() }}
+{% endblock %}

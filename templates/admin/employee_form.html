@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ "Edit " ~ e.full_name if e.id else "New employee" }}{% endblock %}
+{% block heading %}{{ "Edit " ~ e.full_name if e.id else "New employee" }}{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  {{ csrf_field() }}
+  <div class="form">
+    <div class="form-section">Personal</div>
+    <div><label>First name *</label><input name="first_name" value="{{ e.first_name or '' }}" required></div>
+    <div><label>Last name *</label><input name="last_name" value="{{ e.last_name or '' }}" required></div>
+    <div><label>Email</label><input name="email" type="email" value="{{ e.email or '' }}"></div>
+    <div><label>Phone</label><input name="phone" value="{{ e.phone or '' }}" placeholder="+965"></div>
+    <div><label>Nationality</label><input name="nationality" value="{{ e.nationality or '' }}"></div>
+    <div><label>Emergency contact</label><input name="emergency_contact" value="{{ e.emergency_contact or '' }}"></div>
+    <div class="full"><label>Address in Kuwait</label><input name="address" value="{{ e.address or '' }}"></div>
+
+    <div class="form-section">Documents</div>
+    <div><label>Civil ID</label><input name="civil_id" value="{{ e.civil_id or '' }}" maxlength="12"></div>
+    <div><label>Passport no.</label><input name="passport_no" value="{{ e.passport_no or '' }}"></div>
+    <div><label>Residency (Iqama) expiry</label><input type="date" name="residency_expiry" value="{{ e.residency_expiry or '' }}"></div>
+
+    <div class="form-section">Employment</div>
+    <div><label>Employee no.</label><input name="employee_no" value="{{ e.employee_no or '' }}" required></div>
+    <div><label>Job title</label><input name="job_title" value="{{ e.job_title or '' }}"></div>
+    <div><label>Department</label><select name="department_id"><option value="">—</option>{% for d in departments %}<option value="{{ d.id }}" {{ 'selected' if e.department_id == d.id }}>{{ d.name }}</option>{% endfor %}</select></div>
+    <div><label>Office</label><select name="office_id"><option value="">—</option>{% for o in offices %}<option value="{{ o.id }}" {{ 'selected' if e.office_id == o.id }}>{{ o.label }}</option>{% endfor %}</select></div>
+    <div><label>Hire date</label><input type="date" name="hire_date" value="{{ e.hire_date or '' }}"></div>
+    <div><label>Monthly salary (KWD)</label><input type="number" step="0.001" min="0" name="salary" value="{{ e.salary or '' }}"></div>
+    <div><label>Status</label><select name="status">{% for s in ["active","on_leave","suspended","terminated"] %}<option value="{{ s }}" {{ 'selected' if e.status == s }}>{{ s|label }}</option>{% endfor %}</select></div>
+    <div class="full"><label>Notes</label><textarea name="notes">{{ e.notes or '' }}</textarea></div>
+  </div>
+  <div class="actions" style="margin-top:20px">
+    <button class="btn btn-primary">{{ icon("check") }} Save employee</button>
+    <a class="btn btn-light" href="{{ url_for('admin.employee_view', emp_id=e.id) if e.id else url_for('admin.employees') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

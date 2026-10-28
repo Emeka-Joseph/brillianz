@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block heading %}Website settings{% endblock %}
+{% block content %}
+<div class="grid g2">
+  <form class="card" method="post" style="margin:0">
+    {{ csrf_field() }}
+    <h2>Company & contact</h2>
+    <div class="form">
+      <div class="full"><label>Company name</label><input name="company_name" value="{{ values.company_name }}"></div>
+      <div class="full"><label>Company name (Arabic)</label><input name="company_name_ar" value="{{ values.company_name_ar }}" dir="rtl"></div>
+      <div><label>Phone</label><input name="phone" value="{{ values.phone }}"></div>
+      <div><label>WhatsApp (digits only, with 965)</label><input name="whatsapp" value="{{ values.whatsapp }}"></div>
+      <div class="full"><label>Email</label><input name="email" value="{{ values.email }}"></div>
+      <div class="form-section">Homepage counters</div>
+      <div><label>Years of experience</label><input type="number" name="years" value="{{ values.years }}"></div>
+      <div><label>Properties served</label><input type="number" name="clients" value="{{ values.clients }}"></div>
+      <div><label>Staff</label><input type="number" name="staff" value="{{ values.staff }}"></div>
+      <div><label>Jobs completed</label><input type="number" name="projects" value="{{ values.projects }}"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px">{{ icon("check") }} Save settings</button>
+  </form>
+
+  <div class="card" style="margin:0">
+    <h2>Testimonials</h2>
+    <p class="muted">Testimonials are collected from customers through a personal link and only appear on the website after you approve them.</p>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('admin.testimonials') }}">{{ icon("star") }} Manage testimonials</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{# What the end-of-month management report contains (company profile, page 4) #}
+<div class="report-points">
+  {% for ic, title, text in [
+      ("calendar", _("Preventive Maintenance"), _("Regular preventive maintenance schedule, work completed and work planned for next month.")),
+      ("clipboard", _("Maintenance Log"), _("Full log of all requests and repairs: date, issue, action taken, provider and status until closed.")),
+      ("search", _("Inspection & Service Records"), _("Supervisor inspection findings, cleaning, pest control and waste collection records.")),
+      ("chart", _("Provider Performance & Costs"), _("Summary of third-party work, response times, one consolidated invoice and recommendations."))] %}
+  <div class="rp" data-reveal style="--d: {{ loop.index0 * 0.1 }}s">
+    <span class="rp-num">0{{ loop.index }}</span>
+    {{ icon(ic) }}
+    <div><h3>{{ title }}</h3><p>{{ text }}</p></div>
+  </div>
+  {% endfor %}
+</div>

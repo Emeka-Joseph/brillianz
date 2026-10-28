@@ -1,0 +1,99 @@
+{% extends "admin/base.html" %}
+{% block title %}Testimonials{% endblock %}
+{% block heading %}Customer testimonials{% endblock %}
+{% macro share_links(inv) -%}
+  {% set link = url_for('public.testimonial_form', token=inv.token, _external=True) %}
+  {% set msg = "Dear " ~ inv.client_name ~ ", thank you for choosing " ~ (site.company_name or "us") ~ ". We would be grateful if you could share your experience with us here: " ~ link %}
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <input value="{{ link }}" readonly onclick="this.select()" style="flex:1;min-width:220px;font-size:13px" dir="ltr">
+    <button type="button" class="btn btn-light btn-sm" data-copy="{{ link }}">{{ icon("clipboard") }} Copy link</button>
+    <a class="btn btn-light btn-sm" target="_blank" rel="noopener"
+       href="https://wa.me/{{ (inv.phone or '')|replace('+', '')|replace(' ', '') }}?text={{ msg|urlencode }}">{{ icon("whatsapp") }} WhatsApp</a>
+    {% if inv.email %}<a class="btn btn-light btn-sm" href="mailto:{{ inv.email }}?subject={{ 'Share your experience with us'|urlencode }}&body={{ msg|urlencode }}">{{ icon("mail") }} Email</a>{% endif %}
+  </div>
+{%- endmacro %}
+{% block content %}
+<div class="grid g2">
+  <form class="card" method="post" action="{{ url_for('admin.testimonial_invite') }}" style="margin:0">
+    {{ csrf_field() }}
+    <h2>Request a testimonial</h2>
+    <p class="muted" style="margin-top:0">Create a personal link and send it to your customer. Their answer arrives here for you to approve before it appears on the website.</p>
+    <div class="form">
+      <div><label>Customer name *</label><input name="client_name" required></div>
+      <div><label>Company / property</label><input name="company"></div>
+      <div><label>WhatsApp / phone</label><input name="phone" placeholder="+965" dir="ltr"></div>
+      <div><label>Email</label><input name="email" type="email" dir="ltr"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px">{{ icon("plus") }} Create link</button>
+  </form>
+
+  <div class="card" style="margin:0">
+    <h2>Links waiting for an answer <span class="badge">{{ invites|length }}</span></h2>
+    {% for inv in invites %}
+    <div style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px dashed var(--line);{{ 'background:#f0fdfa;border-radius:10px;padding:12px' if new_invite and new_invite.id == inv.id }}">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px">
+        <div><strong>{{ inv.client_name }}</strong>{% if inv.company %} · {{ inv.company }}{% endif %}
+          <div class="muted" style="font-size:12px">Created {{ inv.created_at|dt("%d %b %Y") }}{% if inv.created_by %} by {{ inv.created_by }}{% endif %}</div></div>
+        <form method="post" action="{{ url_for('admin.testimonial_invite_delete', inv_id=inv.id) }}" onsubmit="return confirm('Cancel this link?')">{{ csrf_field() }}
+          <button class="btn btn-danger btn-sm" title="Cancel link">{{ icon("trash") }}</button></form>
+      </div>
+      {{ share_links(inv) }}
+    </div>
+    {% else %}<p class="muted">No open links. Create one to ask a customer for a testimonial.</p>{% endfor %}
+  </div>
+</div>
+
+<div class="toolbar" style="margin-top:24px">
+  {% for s in ["pending", "approved", "rejected"] %}
+  <a class="btn {{ 'btn-dark' if status == s else 'btn-light' }} btn-sm" href="{{ url_for('admin.testimonials', status=s) }}">
+    {{ {"pending": "Waiting for approval", "approved": "Approved (on website)", "rejected": "Rejected"}[s] }} ({{ counts.get(s, 0) }})</a>
+  {% endfor %}
+</div>
+<div class="grid" style="gap:14px">
+{% for t in items %}
+  <form class="card" method="post" action="{{ url_for('admin.testimonial_review', t_id=t.id) }}" style="margin:0">
+    {{ csrf_field() }}
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <div>
+        <span style="color:#f59e0b;letter-spacing:2px">{{ "★" * (t.rating or 5) }}<span style="color:#cbd5e1">{{ "★" * (5 - (t.rating or 5)) }}</span></span>
+        <span class="badge b-{{ t.status }}">{{ t.status|label }}</span>
+        <div class="muted" style="font-size:12px">Received {{ t.submitted_at|dt("%d %b %Y %H:%M") }}
+          {% if t.invite %} · link sent to {{ t.invite.client_name }}{% if t.invite.phone %} ({{ t.invite.phone }}){% endif %}{% endif %}
+          {% if t.reviewed_at %} · {{ t.status|label }} by {{ t.reviewed_by }} on {{ t.reviewed_at|dt }}{% endif %}</div>
+      </div>
+    </div>
+    <div class="grid g2" style="gap:12px">
+      <div style="display:grid;gap:8px">
+        <div class="grid g2" style="gap:8px"><input name="author" value="{{ t.author }}" placeholder="Name"><input name="role" value="{{ t.role or '' }}" placeholder="Position / company"></div>
+        <textarea name="quote" rows="4">{{ t.quote }}</textarea>
+      </div>
+      <div style="display:grid;gap:8px">
+        <div class="grid g2" style="gap:8px"><input name="author_ar" value="{{ t.author_ar or '' }}" placeholder="Name (Arabic, optional)" dir="rtl"><input name="role_ar" value="{{ t.role_ar or '' }}" placeholder="Position / company (Arabic)" dir="rtl"></div>
+        <textarea name="quote_ar" rows="4" dir="rtl" placeholder="Arabic translation (optional, shown on the Arabic site)">{{ t.quote_ar or '' }}</textarea>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      {% if t.status != "approved" %}<button class="btn btn-primary btn-sm" name="action" value="approve">{{ icon("check") }} Approve & publish</button>{% endif %}
+      {% if t.status != "rejected" %}<button class="btn btn-light btn-sm" name="action" value="reject">{{ icon("close") }} {{ "Remove from website" if t.status == "approved" else "Reject" }}</button>{% endif %}
+      <button class="btn btn-light btn-sm" name="action" value="save">Save changes</button>
+      <button class="btn btn-danger btn-sm" name="action" value="delete" onclick="return confirm('Delete this testimonial for good?')">{{ icon("trash") }}</button>
+    </div>
+  </form>
+{% else %}
+  <div class="card empty">{{ {"pending": "No testimonials waiting for approval. New answers from customers appear here.",
+                              "approved": "No approved testimonials yet. Approved ones are shown on the homepage.",
+                              "rejected": "No rejected testimonials."}[status] }}</div>
+{% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll("[data-copy]").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var done = function () { var t = btn.innerHTML; btn.textContent = "Copied!"; setTimeout(function () { btn.innerHTML = t; }, 1500); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(btn.dataset.copy).then(done); }
+    else { var i = btn.parentNode.querySelector("input"); i.select(); document.execCommand("copy"); done(); }
+  });
+});
+</script>
+{% endblock %}

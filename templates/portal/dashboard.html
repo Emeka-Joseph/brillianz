@@ -1,0 +1,163 @@
+{% extends "admin/base.html" %}
+{% block title %}My day{% endblock %}
+{% block heading %}Hello, {{ e.first_name }} 👋{% endblock %}
+{% block content %}
+<div class="grid g-2-1">
+  <div class="card hero-card" style="margin:0">
+    <div class="muted">{{ now|dt("%A, %d %B %Y") }}</div>
+    <div class="clock" id="clock">{{ now.strftime("%H:%M:%S") }}</div>
+    <p class="muted" style="margin:6px 0 20px">
+      {% if not today %}You haven't checked in yet today.
+      {% elif not today.check_out %}<span class="pulse-dot"></span>On shift since {{ today.check_in|dt("%H:%M") }}{% if today.status == "late" %} (late){% endif %}.
+      {% else %}Shift complete: {{ today.check_in|dt("%H:%M") }} – {{ today.check_out|dt("%H:%M") }} · {{ today.hours }} h. Great work!{% endif %}
+    </p>
+    {% if not today or not today.check_out %}
+    {% set action = "Check in" if not today else "Check out" %}
+    <button type="button" class="btn btn-primary btn-xl" id="clockBtn">{{ icon("clock") }} {{ action }}</button>
+    <p class="muted" style="margin:10px 0 0;font-size:13px">A live selfie and your location are recorded with every check in and check out.</p>
+    {% endif %}
+  </div>
+  <div class="grid" style="gap:20px">
+    <div class="card kpi" style="margin:0"><span class="ic gold">{{ icon("calendar") }}</span><div><strong>{{ leave_balance }}</strong><span>Annual leave days left ({{ leave_used }} used)</span></div></div>
+    <div class="card kpi" style="margin:0"><span class="ic violet">{{ icon("clipboard") }}</span><div><strong>{{ orders|length }}</strong><span>Open jobs assigned to you</span></div></div>
+  </div>
+</div>
+
+<div class="grid g2" style="margin-top:20px">
+  <div class="card" style="margin:0">
+    <h2>My jobs</h2>
+    {% for w in orders %}
+    <div class="list-row">
+      {% if w.service %}<span style="color:var(--teal)">{{ svc_icon(w.service.icon) }}</span>{% endif %}
+      <div class="grow"><strong>{{ w.reference }} · {{ w.title }}</strong><small>{{ w.client_name }} · {{ w.location or "" }} · {{ w.scheduled_date|dt }}</small></div>
+      <span class="badge b-{{ w.status }}">{{ w.status|label }}</span>
+      <form method="post" action="{{ url_for('portal.job_status', wo_id=w.id) }}">{{ csrf_field() }}
+        {% if w.status != "in_progress" %}<button class="btn btn-light btn-sm" name="status" value="in_progress">Start</button>
+        {% else %}<button class="btn btn-ok btn-sm" name="status" value="completed">{{ icon("check") }} Done</button>{% endif %}
+      </form>
+    </div>
+    {% else %}<p class="empty">No open jobs. Enjoy the calm!</p>{% endfor %}
+  </div>
+  <div class="card" style="margin:0">
+    <h2>My attendance</h2>
+    {% for a in recent %}
+    <div class="list-row"><div class="grow"><strong>{{ a.work_date|dt("%a %d %b") }}</strong><small>{{ a.check_in|dt("%H:%M") }} – {{ a.check_out|dt("%H:%M") }}{% if a.hours %} · {{ a.hours }} h{% endif %}</small></div><span class="badge b-{{ a.status }}">{{ a.status|label }}</span></div>
+    {% else %}<p class="empty">No attendance yet.</p>{% endfor %}
+  </div>
+</div>
+{% if not today or not today.check_out %}
+<div class="modal" id="camModal" hidden>
+  <form class="card modal-card" method="post" action="{{ url_for('portal.clock') }}" id="clockForm">
+    {{ csrf_field() }}
+    <input type="hidden" name="selfie" id="fSelfie"><input type="hidden" name="lat" id="fLat">
+    <input type="hidden" name="lng" id="fLng"><input type="hidden" name="accuracy" id="fAcc">
+    <h2>{{ action }} · live selfie <button type="button" class="btn btn-light btn-sm" id="camClose" aria-label="Close">{{ icon("close") }}</button></h2>
+    <div class="cam">
+      <video id="camVideo" autoplay playsinline muted></video>
+      <img id="camShot" alt="Your selfie" hidden>
+      <canvas id="camCanvas" hidden></canvas>
+    </div>
+    <div class="cam-status">
+      <div id="stCam"><span class="dot wait"></span>Starting camera…</div>
+      <div id="stLoc"><span class="dot wait"></span>Finding your location…</div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button type="button" class="btn btn-dark" id="snapBtn" disabled>{{ icon("user") }} Take selfie</button>
+      <button type="button" class="btn btn-light" id="retakeBtn" hidden>Retake</button>
+      <span class="grow" style="flex:1"></span>
+      <button class="btn btn-primary is-waiting" id="submitBtn">{{ icon("check") }} {{ action }}</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>setInterval(() => { const d = new Date(); document.getElementById("clock").textContent = d.toTimeString().slice(0, 8); }, 1000);</script>
+<script>
+(() => {
+  const btn = document.getElementById("clockBtn");
+  if (!btn) return;
+  const $ = id => document.getElementById(id);
+  const modal = $("camModal"), video = $("camVideo"), shot = $("camShot"), canvas = $("camCanvas");
+  let stream = null, photo = null, loc = null;
+
+  const status = (el, state, text) => { el.innerHTML = `<span class="dot ${state}"></span>`; el.append(text); };
+  const ready = () => { $("submitBtn").classList.toggle("is-waiting", !(photo && loc)); };
+  const stopCam = () => { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; };
+
+  async function startCam() {
+    photo = null; shot.hidden = true; video.hidden = false; $("retakeBtn").hidden = true; $("snapBtn").hidden = false; ready();
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 720 } }, audio: false });
+      video.srcObject = stream;
+      await video.play().catch(() => {});
+      if (!video.videoWidth) await new Promise(r => video.addEventListener("loadeddata", r, { once: true }));
+      $("snapBtn").disabled = false;
+      status($("stCam"), "ok", "Camera ready. Look at the camera and tap “Take selfie”.");
+    } catch (err) {
+      status($("stCam"), "bad", "Camera blocked or unavailable. Allow camera access for this site and try again.");
+    }
+  }
+
+  function retryLink(el) {
+    const a = document.createElement("a");
+    a.href = "#"; a.textContent = " Retry"; a.style.color = "var(--teal)";
+    a.addEventListener("click", ev => { ev.preventDefault(); findLocation(); });
+    el.append(a);
+  }
+
+  // Phones answer quickly with GPS; laptops have none, so fall back to Wi-Fi/network location.
+  function findLocation(precise = true) {
+    loc = null; ready();
+    status($("stLoc"), "wait", precise ? "Finding your location…" : "Still looking (using Wi-Fi location)…");
+    navigator.geolocation.getCurrentPosition(p => {
+      loc = p.coords;
+      $("fLat").value = loc.latitude; $("fLng").value = loc.longitude; $("fAcc").value = Math.round(loc.accuracy);
+      status($("stLoc"), "ok", `Location found (accurate to about ${Math.round(loc.accuracy)} m).`);
+      ready();
+    }, err => {
+      if (err.code !== 1 && precise) return findLocation(false);
+      status($("stLoc"), "bad", err.code === 1
+        ? "Location blocked. Click the lock icon next to the address bar, allow Location, then"
+        : "Couldn't get your location. Check that location is turned on in your device settings, then");
+      retryLink($("stLoc"));
+    }, precise ? { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+               : { enableHighAccuracy: false, timeout: 20000, maximumAge: 300000 });
+  }
+
+  btn.addEventListener("click", () => {
+    modal.hidden = false;
+    if (!window.isSecureContext || !navigator.mediaDevices || !navigator.geolocation) {
+      status($("stCam"), "bad", "Camera and location need a secure (https) connection. Please contact your administrator.");
+      status($("stLoc"), "bad", "Location unavailable on this connection.");
+      return;
+    }
+    startCam(); findLocation();
+  });
+
+  $("snapBtn").addEventListener("click", () => {
+    if (!video.videoWidth) { status($("stCam"), "wait", "Camera is still starting, try again in a moment."); return; }
+    const w = Math.min(video.videoWidth, 640), h = Math.round(video.videoHeight * w / video.videoWidth);
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+    photo = canvas.toDataURL("image/jpeg", 0.75);
+    $("fSelfie").value = photo;
+    shot.src = photo; shot.hidden = false; video.hidden = true;
+    $("snapBtn").hidden = true; $("retakeBtn").hidden = false;
+    stopCam(); ready();
+  });
+  $("retakeBtn").addEventListener("click", startCam);
+  $("camClose").addEventListener("click", () => { stopCam(); modal.hidden = true; });
+  $("clockForm").addEventListener("submit", ev => {
+    if (!photo || !loc) {
+      ev.preventDefault();
+      const el = !photo ? $("stCam") : $("stLoc");
+      if (!photo) status(el, "bad", "Take your selfie first.");
+      el.animate([{ transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "none" }], { duration: 250, iterations: 2 });
+      return;
+    }
+    $("submitBtn").disabled = true; $("submitBtn").lastChild.textContent = " Saving…";
+  });
+})();
+</script>
+{% endblock %}

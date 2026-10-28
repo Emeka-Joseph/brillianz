@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block title %}Services{% endblock %}
+{% block heading %}Website services{% endblock %}
+{% block content %}
+<div class="grid g3">
+  {% for s in services %}
+  <a class="card" href="{{ url_for('admin.service_edit', svc_id=s.id) }}" style="margin:0;padding:0;overflow:hidden">
+    <img src="{{ url_for('static', filename='img/' ~ s.image) }}" alt="" style="width:100%;height:140px;object-fit:cover;display:block">
+    <div style="padding:16px;display:flex;gap:12px;align-items:center">
+      <span style="color:var(--teal)">{{ svc_icon(s.icon) }}</span>
+      <div style="flex:1"><strong>{{ s.name }}</strong><div class="muted" style="font-size:12px">Activity {{ s.code }}</div></div>
+      <span class="badge {{ 'b-active' if s.is_active else 'b-cancelled' }}">{{ "Live" if s.is_active else "Hidden" }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Free quote") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/interior.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <span>{{ _("Free quote") }}</span></div>
+    <h1>{{ _("Get your") }} <span class="grad-text">{{ _("free quote") }}</span></h1>
+    <p>{{ _("Tell us about your property. A specialist will call you to arrange a free site survey.") }}</p>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container" style="max-width:960px">
+    <form class="form-card" method="post" data-reveal>
+      {{ csrf_field() }}
+      <span class="eyebrow">{{ _("Step 1") }}</span>
+      <h3 style="font-size:24px">{{ _("Which service do you need?") }}</h3>
+      <div class="choice-grid">
+        {% for s in nav_services %}
+        <label class="choice"><input type="radio" name="service_id" value="{{ s.id }}" {{ 'checked' if selected == s.slug or (not selected and loop.first) }}><span>{{ svc_icon(s.icon) }}{{ tr(s, "name") }}</span></label>
+        {% endfor %}
+      </div>
+
+      <span class="eyebrow" style="margin-top:36px">{{ _("Step 2") }}</span>
+      <h3 style="font-size:24px">{{ _("About your property") }}</h3>
+      <div class="form-grid">
+        <div class="field"><label for="property_type">{{ _("Property type") }}</label>
+          <select id="property_type" name="property_type">
+            {% for p in ["Residential tower", "Villa / house", "Apartment", "Office / commercial", "Retail / mall", "Restaurant / cafe", "Mixed-use building", "New build / renovation", "School", "Clinic / hospital", "Warehouse / industrial", "Other"] %}<option value="{{ p }}">{{ _(p) }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="area_sqm">{{ _("Approx. area (m²)") }}</label><input id="area_sqm" name="area_sqm" type="number" min="0" placeholder="1200"></div>
+        <div class="field"><label for="location">{{ _("Area / governorate") }}</label><input id="location" name="location" placeholder="{{ _('e.g. Fahaheel, Salmiya, Kuwait City') }}"></div>
+        <div class="field"><label for="frequency">{{ _("Frequency") }}</label>
+          <select id="frequency" name="frequency">{% for f in ["One-time", "Daily", "Weekly", "Monthly", "Annual contract"] %}<option value="{{ f }}">{{ _(f) }}</option>{% endfor %}</select></div>
+      </div>
+
+      <span class="eyebrow" style="margin-top:36px">{{ _("Step 3") }}</span>
+      <h3 style="font-size:24px">{{ _("Your details") }}</h3>
+      <div class="form-grid">
+        <div class="field"><label for="name">{{ _("Full name") }} *</label><input id="name" name="name" required></div>
+        <div class="field"><label for="company">{{ _("Company") }}</label><input id="company" name="company"></div>
+        <div class="field"><label for="phone">{{ _("Phone") }} *</label><input id="phone" name="phone" type="tel" placeholder="+965" dir="ltr" required></div>
+        <div class="field"><label for="email">{{ _("Email") }}</label><input id="email" name="email" type="email" dir="ltr"></div>
+        <div class="field full"><label for="message">{{ _("Anything else?") }}</label><textarea id="message" name="message" placeholder="{{ _('Special requirements, preferred dates, access details…') }}"></textarea></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:26px">{{ _("Request my free quote") }} {{ icon("arrow") }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

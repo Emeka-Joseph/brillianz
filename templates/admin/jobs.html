@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Job postings{% endblock %}
+{% block heading %}Job postings{% endblock %}
+{% macro job_form(j=None) %}
+<form method="post" style="display:grid;gap:10px">{{ csrf_field() }}
+  <input type="hidden" name="id" value="{{ j.id if j else '' }}">
+  <div><label>Title</label><input name="title" value="{{ j.title if j else '' }}" required></div>
+  <div class="grid g2" style="gap:10px">
+    <div><label>Department</label><select name="department_id"><option value="">—</option>{% for d in departments %}<option value="{{ d.id }}" {{ 'selected' if j and j.department_id == d.id }}>{{ d.name }}</option>{% endfor %}</select></div>
+    <div><label>Location</label><input name="location" value="{{ j.location if j else 'Fahaheel' }}"></div>
+  </div>
+  <div><label>Type</label><select name="employment_type">{% for t in ["Full-time","Part-time","Contract","Temporary"] %}<option {{ 'selected' if j and j.employment_type == t }}>{{ t }}</option>{% endfor %}</select></div>
+  <div><label>Description</label><textarea name="description">{{ j.description if j else '' }}</textarea></div>
+  <div><label>Requirements (one per line)</label><textarea name="requirements">{{ j.requirements if j else '' }}</textarea></div>
+  <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="is_open" {{ 'checked' if not j or j.is_open }}> Open for applications</label>
+  <button class="btn btn-primary">{{ icon("check") }} Save</button>
+</form>
+{% endmacro %}
+{% block content %}
+<div class="grid g-2-1">
+  <div class="grid" style="gap:14px;align-content:start">
+    {% for j in jobs %}
+    <div class="card" style="margin:0">
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1"><strong style="font-size:16px">{{ j.title }}</strong> <span class="badge {{ 'b-active' if j.is_open else 'b-cancelled' }}">{{ "Open" if j.is_open else "Closed" }}</span>
+          <div class="muted">{{ j.department.name if j.department else "General" }} · {{ j.location }} · {{ j.employment_type }}</div></div>
+        <a class="btn btn-light btn-sm" href="{{ url_for('admin.applications', job=j.id) }}">{{ j.applications|length }} applicants</a>
+        {% if j.is_open %}<a class="btn btn-light btn-sm" target="_blank" href="{{ url_for('public.career_detail', slug=j.slug) }}">{{ icon("globe") }}</a>{% endif %}
+        <form method="post" action="{{ url_for('admin.job_delete', job_id=j.id) }}" onsubmit="return confirm('Delete posting and its applications?')">{{ csrf_field() }}<button class="btn btn-danger btn-sm">{{ icon("trash") }}</button></form>
+      </div>
+      <details class="drawer" style="margin-top:12px"><summary class="btn btn-light btn-sm">{{ icon("edit") }} Edit</summary>{{ job_form(j) }}</details>
+    </div>
+    {% else %}<div class="card empty">No postings yet.</div>{% endfor %}
+  </div>
+  <div class="card" style="align-self:start"><h2>New posting</h2>{{ job_form() }}</div>
+</div>
+{% endblock %}

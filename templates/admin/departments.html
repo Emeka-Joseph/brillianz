@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block title %}Departments{% endblock %}
+{% block heading %}Departments{% endblock %}
+{% block content %}
+<div class="grid g-2-1">
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Department</th><th>Description</th><th>Staff</th><th></th></tr></thead>
+      <tbody>{% for d, n in rows %}
+        <tr>
+          <td><span class="chip-dot" style="background:{{ d.color }}"></span> <strong>{{ d.name }}</strong></td>
+          <td class="muted">{{ d.description or "" }}</td>
+          <td><a href="{{ url_for('admin.employees', dept=d.id) }}">{{ n }}</a></td>
+          <td class="actions">
+            <details class="drawer"><summary class="btn btn-light btn-sm">{{ icon("edit") }}</summary>
+              <form method="post" style="display:grid;gap:8px;min-width:240px">{{ csrf_field() }}
+                <input type="hidden" name="id" value="{{ d.id }}"><input name="name" value="{{ d.name }}" required>
+                <input name="description" value="{{ d.description or '' }}"><input type="color" name="color" value="{{ d.color }}">
+                <button class="btn btn-primary btn-sm">Save</button></form>
+            </details>
+            <form method="post" action="{{ url_for('admin.department_delete', dep_id=d.id) }}" onsubmit="return confirm('Delete department?')">{{ csrf_field() }}<button class="btn btn-danger btn-sm">{{ icon("trash") }}</button></form>
+          </td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <form class="card" method="post" style="display:grid;gap:12px;align-content:start">
+    {{ csrf_field() }}
+    <h2>Add department</h2>
+    <div><label>Name</label><input name="name" required></div>
+    <div><label>Description</label><input name="description"></div>
+    <div><label>Colour</label><input type="color" name="color" value="#14b8a6"></div>
+    <button class="btn btn-primary">{{ icon("plus") }} Add</button>
+  </form>
+</div>
+{% endblock %}

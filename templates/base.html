@@ -1,0 +1,153 @@
+{% from "partials/icons.html" import icon, svc_icon, logo %}{% set ar = is_ar() %}<!doctype html>
+<html lang="{{ 'ar' if ar else 'en' }}" dir="{{ 'rtl' if ar else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.company_name_ar if ar else site.company_name }}{% endblock %}</title>
+  <meta name="description" content="{% block meta %}{{ _('Brillianz Public Facility Management Company, Kuwait. Full property management, building cleaning, deep cleaning, maintenance, pest control, waste collection and manpower supply.') }}{% endblock %}">
+  <meta name="theme-color" content="#061528">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="alternate" hreflang="{{ 'en' if ar else 'ar' }}" href="{{ url_for('public.set_language', code='en' if ar else 'ar') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  {% set phone_href = "tel:" ~ site.phone|replace(" ", "") %}
+  {% set other_lang = "en" if ar else "ar" %}
+  {% macro lang_switch(cls="") -%}
+  {%- set to = "en" if is_ar() else "ar" -%}
+  <a class="lang-switch {{ cls }}" href="{{ url_for('public.set_language', code=to) }}" hreflang="{{ to }}" lang="{{ to }}"
+     title="{{ 'Switch to English' if to == 'en' else 'التبديل إلى العربية' }}">
+    {{ icon("globe") }}<span>{{ "English" if to == "en" else "العربية" }}</span>
+  </a>
+  {%- endmacro %}
+
+  <div class="preloader" aria-hidden="true"><div style="display:grid;place-items:center">{{ logo("pre") }}<div class="bar"></div></div></div>
+  <div class="progress" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <div class="container">
+      <div class="group">
+        <a href="{{ phone_href }}" dir="ltr">{{ icon("phone") }} {{ site.phone }}</a>
+        <a href="mailto:{{ site.email }}" class="hide-sm">{{ icon("mail") }} {{ site.email }}</a>
+        {% if offices|length > 1 %}<span class="hide-sm">{{ icon("pin") }} {% for o in offices %}{{ (o.line_list_ar if ar else o.line_list)[0] }}{% if not loop.last %} · {% endif %}{% endfor %}</span>{% endif %}
+      </div>
+      <div class="group">
+        <span class="hide-sm">{{ icon("star") }} {{ _("Excellence in every service") }}</span>
+        <a href="{{ url_for('auth.login') }}">{{ icon("user") }} {{ _("Staff portal") }}</a>
+        {{ lang_switch("lang-top") }}
+      </div>
+    </div>
+  </div>
+
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="{{ url_for('public.home') }}" aria-label="{{ _('Home') }}">
+        {{ logo("nav") }}
+        <span class="brand-text"><strong>{{ _("Brillianz") }}</strong><small>{{ _("Facility Management") }}</small></span>
+      </a>
+      <nav aria-label="Main">
+        <ul class="menu">
+          {% set ep = request.endpoint or "" %}
+          <li><a href="{{ url_for('public.home') }}" class="{{ 'active' if ep == 'public.home' }}">{{ _("Home") }}</a></li>
+          <li><a href="{{ url_for('public.about') }}" class="{{ 'active' if ep == 'public.about' }}">{{ _("About") }}</a></li>
+          <li>
+            <a href="{{ url_for('public.services') }}" class="{{ 'active' if ep.startswith('public.service') }}">{{ _("Services") }}
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></a>
+            <div class="dropdown">
+              {% for s in nav_services %}
+              <a href="{{ url_for('public.service_detail', slug=s.slug) }}">{{ svc_icon(s.icon) }}<span>{{ tr(s, "name") }}</span></a>
+              {% endfor %}
+            </div>
+          </li>
+          <li><a href="{{ url_for('public.careers') }}" class="{{ 'active' if ep.startswith('public.career') }}">{{ _("Careers") }}</a></li>
+          <li><a href="{{ url_for('public.contact') }}" class="{{ 'active' if ep == 'public.contact' }}">{{ _("Contact") }}</a></li>
+        </ul>
+      </nav>
+      <div class="nav-cta">
+        {{ lang_switch("lang-nav") }}
+        <a class="btn btn-outline btn-sm" href="{{ phone_href }}">{{ icon("phone") }} {{ _("Call us") }}</a>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('public.quote') }}">{{ _("Get a free quote") }} {{ icon("arrow") }}</a>
+        <button class="burger" aria-label="{{ _('Open menu') }}">{{ icon("menu") }}</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-nav" aria-label="{{ _('Menu') }}">
+    <button class="close" aria-label="{{ _('Close menu') }}">{{ icon("close") }}</button>
+    {{ lang_switch("lang-mobile") }}
+    <a href="{{ url_for('public.home') }}">{{ _("Home") }}</a>
+    <a href="{{ url_for('public.about') }}">{{ _("About") }}</a>
+    <a href="{{ url_for('public.services') }}">{{ _("Services") }}</a>
+    <div class="sub">{% for s in nav_services %}<a href="{{ url_for('public.service_detail', slug=s.slug) }}">{{ tr(s, "name") }}</a>{% endfor %}</div>
+    <a href="{{ url_for('public.careers') }}">{{ _("Careers") }}</a>
+    <a href="{{ url_for('public.contact') }}">{{ _("Contact") }}</a>
+    <a href="{{ url_for('public.quote') }}" style="color:var(--teal-400)">{{ _("Get a free quote") }} {{ "←" if ar else "→" }}</a>
+    <a href="{{ phone_href }}" dir="ltr" style="text-align:{{ 'right' if ar else 'left' }}">{{ site.phone }}</a>
+    <a href="{{ url_for('auth.login') }}">{{ _("Staff portal") }}</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="flashes">{% for cat, m in messages %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+  {% endwith %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer>
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="{{ url_for('public.home') }}">{{ logo("foot") }}<span class="brand-text"><strong>{{ _("Brillianz") }}</strong><small>{{ _("Facility Management") }}</small></span></a>
+          <p style="margin-top:20px;font-size:14.5px">{{ _("A Kuwait-licensed company delivering full property management, building management, cleaning, maintenance, pest control, manpower supply and related services.") }}</p>
+          <p class="foot-tag">{{ _("Excellence in every service") }}</p>
+          <p class="alt-name">{{ site.company_name if ar else site.company_name_ar }}</p>
+        </div>
+        <div>
+          <h4>{{ _("Services") }}</h4>
+          <ul>{% for s in nav_services %}<li><a href="{{ url_for('public.service_detail', slug=s.slug) }}">{{ tr(s, "name") }}</a></li>{% endfor %}</ul>
+        </div>
+        <div>
+          <h4>{{ _("Company") }}</h4>
+          <ul>
+            <li><a href="{{ url_for('public.about') }}">{{ _("About us") }}</a></li>
+            <li><a href="{{ url_for('public.careers') }}">{{ _("Careers") }}</a></li>
+            <li><a href="{{ url_for('public.quote') }}">{{ _("Request a quote") }}</a></li>
+            <li><a href="{{ url_for('public.contact') }}">{{ _("Contact") }}</a></li>
+            <li><a href="{{ url_for('auth.login') }}">{{ _("Staff portal") }}</a></li>
+          </ul>
+          <h4 style="margin-top:30px">{{ _("Reach us") }}</h4>
+          <ul>
+            <li><a href="{{ phone_href }}" dir="ltr">{{ site.phone }}</a></li>
+            {% if site.whatsapp %}<li><a href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">{{ _("WhatsApp") }}</a></li>{% endif %}
+            <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
+            {% if site.email_ops %}<li><a href="mailto:{{ site.email_ops }}">{{ site.email_ops }}</a></li>{% endif %}
+            <li>{{ lang_switch("lang-foot") }}</li>
+          </ul>
+        </div>
+        <div>
+          <h4>{{ _("Our offices") }}</h4>
+          {% for o in offices %}
+          <address><b>{{ tr(o, "label") }}</b>{{ (o.line_list_ar if ar else o.line_list)|join("، " if ar else ", ") }}
+            {% if o.phone %}<br><a href="tel:{{ o.phone|replace(' ', '') }}" dir="ltr">{{ o.phone }}</a>{% endif %}
+            {% if o.hours %}<br><small>{{ tr(o, "hours") }}</small>{% endif %}</address>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="foot-big" aria-hidden="true">BRILLIANZ</div>
+      <div class="foot-bottom">
+        <span>© {{ now.year }} {{ site.company_name_ar if ar else site.company_name }}. {{ _("All rights reserved.") }}</span>
+        <span>{{ _("State of Kuwait") }}</span>
+      </div>
+    </div>
+  </footer>
+
+  {% if site.whatsapp %}<a class="fab-wa" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener" aria-label="{{ _('Chat on WhatsApp') }}">{{ icon("whatsapp") }}</a>{% endif %}
+  <button class="to-top" aria-label="{{ _('Back to top') }}">{{ icon("arrow") }}</button>
+
+  <script src="{{ url_for('static', filename='js/site.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

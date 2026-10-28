@@ -1,0 +1,77 @@
+{% from "partials/icons.html" import icon, svc_icon, logo %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Back office{% endblock %} · Brillianz FM</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+{% set ep = request.endpoint or "" %}
+{% set role = current_user.role %}
+<div class="layout">
+  <aside class="side" id="side">
+    <a class="brand" href="{{ url_for('public.home') }}" target="_blank">{{ logo("adm") }}<span><strong>Brillianz FM</strong><small>{{ "Back office" if current_user.is_staff_manager else "Staff portal" }}</small></span></a>
+
+    {% if current_user.employee %}
+    <div class="group">My workspace</div>
+    <a href="{{ url_for('portal.dashboard') }}" class="{{ 'on' if ep == 'portal.dashboard' }}">{{ icon("home") }} My day</a>
+    <a href="{{ url_for('portal.leave') }}" class="{{ 'on' if ep == 'portal.leave' }}">{{ icon("calendar") }} My leave</a>
+    <a href="{{ url_for('portal.profile') }}" class="{{ 'on' if ep == 'portal.profile' }}">{{ icon("user") }} My profile</a>
+    {% endif %}
+
+    {% if current_user.is_staff_manager %}
+    <div class="group">Overview</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="{{ 'on' if ep == 'admin.dashboard' }}">{{ icon("grid") }} Dashboard</a>
+    <div class="group">People</div>
+    <a href="{{ url_for('admin.employees') }}" class="{{ 'on' if ep.startswith('admin.employee') }}">{{ icon("users") }} Employees</a>
+    {% if role in ['admin', 'hr'] %}<a href="{{ url_for('admin.departments') }}" class="{{ 'on' if ep.startswith('admin.department') }}">{{ icon("building") }} Departments</a>{% endif %}
+    <a href="{{ url_for('admin.attendance') }}" class="{{ 'on' if ep.startswith('admin.attendance') }}">{{ icon("clock") }} Attendance</a>
+    <a href="{{ url_for('admin.leaves') }}" class="{{ 'on' if ep.startswith('admin.leave') }}">{{ icon("calendar") }} Leave requests</a>
+    <div class="group">Operations</div>
+    <a href="{{ url_for('admin.work_orders') }}" class="{{ 'on' if ep.startswith('admin.work_order') }}">{{ icon("clipboard") }} Work orders</a>
+    <a href="{{ url_for('admin.inquiries') }}" class="{{ 'on' if ep.startswith('admin.inquir') }}">{{ icon("inbox") }} Leads & quotes</a>
+    {% if role in ['admin', 'hr'] %}
+    <div class="group">Recruitment</div>
+    <a href="{{ url_for('admin.jobs') }}" class="{{ 'on' if ep.startswith('admin.job') }}">{{ icon("briefcase") }} Job postings</a>
+    <a href="{{ url_for('admin.applications') }}" class="{{ 'on' if ep.startswith('admin.application') }}">{{ icon("user") }} Applications</a>
+    {% endif %}
+    {% if role == 'admin' %}
+    <div class="group">Website & system</div>
+    <a href="{{ url_for('admin.services') }}" class="{{ 'on' if ep.startswith('admin.service') }}">{{ icon("star") }} Services</a>
+    <a href="{{ url_for('admin.testimonials') }}" class="{{ 'on' if ep.startswith('admin.testimonial') }}">{{ icon("inbox") }} Testimonials{% if pending_testimonials %} <span class="badge b-pending" style="margin-left:auto">{{ pending_testimonials }}</span>{% endif %}</a>
+    <a href="{{ url_for('admin.offices') }}" class="{{ 'on' if ep.startswith('admin.office') }}">{{ icon("pin") }} Offices</a>
+    <a href="{{ url_for('admin.settings') }}" class="{{ 'on' if ep == 'admin.settings' }}">{{ icon("settings") }} Settings</a>
+    <a href="{{ url_for('admin.users') }}" class="{{ 'on' if ep.startswith('admin.user') }}">{{ icon("key") }} Users & roles</a>
+    {% endif %}
+    {% endif %}
+
+    <div class="group">Account</div>
+    <a href="{{ url_for('auth.change_password') }}" class="{{ 'on' if ep == 'auth.change_password' }}">{{ icon("key") }} Change password</a>
+    <a href="{{ url_for('public.home') }}" target="_blank">{{ icon("globe") }} View website</a>
+    <a href="{{ url_for('auth.logout') }}">{{ icon("logout") }} Sign out</a>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="burger" onclick="document.getElementById('side').classList.toggle('open')" aria-label="Menu">{{ icon("menu") }}</button>
+        <h1>{% block heading %}{% endblock %}</h1>
+      </div>
+      <div class="who">
+        {% block top_actions %}{% endblock %}
+        <div style="text-align:right;line-height:1.2"><strong>{{ current_user.display_name }}</strong><br><small class="muted">{{ current_user.role|label }}</small></div>
+        <span class="avatar">{{ current_user.employee.initials if current_user.employee else current_user.email[:2]|upper }}</span>
+      </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flashes">{% for cat, m in messages %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    <div class="content">{% block content %}{% endblock %}</div>
+  </div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

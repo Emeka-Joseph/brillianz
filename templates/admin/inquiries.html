@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Leads & quotes{% endblock %}
+{% block heading %}Leads & quote requests{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <a class="btn {{ 'btn-dark' if not request.args.kind else 'btn-light' }} btn-sm" href="{{ url_for('admin.inquiries') }}">All</a>
+  <a class="btn {{ 'btn-dark' if request.args.kind == 'quote' else 'btn-light' }} btn-sm" href="{{ url_for('admin.inquiries', kind='quote') }}">Quote requests</a>
+  <a class="btn {{ 'btn-dark' if request.args.kind == 'contact' else 'btn-light' }} btn-sm" href="{{ url_for('admin.inquiries', kind='contact') }}">Contact messages</a>
+</div>
+<div class="grid" style="gap:14px">
+{% for i in inquiries %}
+  <div class="card" style="margin:0">
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+      <span class="avatar" style="background:linear-gradient(120deg,#f472b6,#e11d48)">{{ i.name[:2]|upper }}</span>
+      <div style="flex:1;min-width:240px">
+        <strong style="font-size:16px">{{ i.name }}</strong>{% if i.company %} · {{ i.company }}{% endif %}
+        <span class="badge b-{{ i.kind }}">{{ i.kind|label }}</span>
+        <div class="muted" style="font-size:13px">{{ i.created_at|dt("%d %b %Y %H:%M") }} · {{ i.service.name if i.service else "General enquiry" }}</div>
+        <div style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap;font-weight:600">
+          {% if i.phone %}<a href="tel:{{ i.phone }}">{{ icon("phone") }} {{ i.phone }}</a>{% endif %}
+          {% if i.email %}<a href="mailto:{{ i.email }}">{{ icon("mail") }} {{ i.email }}</a>{% endif %}
+          {% if i.location %}<span>{{ icon("pin") }} {{ i.location }}</span>{% endif %}
+        </div>
+        {% if i.kind == "quote" %}<div class="muted" style="margin-top:6px">{{ i.property_type or "" }}{% if i.area_sqm %} · {{ i.area_sqm }} m²{% endif %}{% if i.frequency %} · {{ i.frequency }}{% endif %}</div>{% endif %}
+        {% if i.message %}<p style="margin:10px 0 0;white-space:pre-line">{{ i.message }}</p>{% endif %}
+      </div>
+      <div class="actions">
+        <form method="post" action="{{ url_for('admin.inquiry_status', inq_id=i.id) }}">{{ csrf_field() }}
+          <select name="status" onchange="this.form.submit()" style="width:140px">{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if i.status == s }}>{{ s|label }}</option>{% endfor %}</select></form>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.work_order_form', inquiry=i.id) }}">{{ icon("clipboard") }} Create work order</a>
+        {% if current_user.role == 'admin' %}<form method="post" action="{{ url_for('admin.inquiry_delete', inq_id=i.id) }}" onsubmit="return confirm('Delete?')">{{ csrf_field() }}<button class="btn btn-danger btn-sm">{{ icon("trash") }}</button></form>{% endif %}
+      </div>
+    </div>
+  </div>
+{% else %}<div class="card empty">No inquiries yet. They appear here when visitors use the contact or quote forms.</div>{% endfor %}
+</div>
+{% endblock %}

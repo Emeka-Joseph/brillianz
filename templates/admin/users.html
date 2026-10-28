@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block title %}Users{% endblock %}
+{% block heading %}Users & roles{% endblock %}
+{% block content %}
+<div class="grid g-2-1">
+  <div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>User</th><th>Role</th><th>Last login</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for u in users %}
+      <tr><td><strong>{{ u.email }}</strong><br><small class="muted">{{ u.employee.full_name if u.employee else "No employee record" }}</small></td>
+        <td>{% if u.id != current_user.id %}<form method="post" action="{{ url_for('admin.user_role', user_id=u.id) }}">{{ csrf_field() }}<select name="role" onchange="this.form.submit()" style="width:130px">{% for r in roles %}<option value="{{ r }}" {{ 'selected' if u.role == r }}>{{ r|label }}</option>{% endfor %}</select></form>{% else %}{{ u.role|label }} (you){% endif %}</td>
+        <td>{{ u.last_login|dt("%d %b %Y %H:%M") }}</td>
+        <td><span class="badge {{ 'b-active' if u.is_active_account else 'b-suspended' }}">{{ "Active" if u.is_active_account else "Disabled" }}</span></td>
+        <td>{% if u.id != current_user.id %}<form method="post" action="{{ url_for('admin.user_toggle', user_id=u.id) }}">{{ csrf_field() }}<button class="btn btn-light btn-sm">{{ "Disable" if u.is_active_account else "Enable" }}</button></form>{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div></div>
+  <form class="card" method="post" style="display:grid;gap:12px;align-content:start">{{ csrf_field() }}
+    <h2>Add back-office user</h2>
+    <p class="muted" style="margin:0">For employee logins, open the employee's profile and use “Portal login”.</p>
+    <div><label>Email</label><input type="email" name="email" required></div>
+    <div><label>Password (min. 8)</label><input type="password" name="password" minlength="8" required></div>
+    <div><label>Role</label><select name="role">{% for r in roles %}<option value="{{ r }}" {{ 'selected' if r == 'hr' }}>{{ r|label }}</option>{% endfor %}</select></div>
+    <button class="btn btn-primary">{{ icon("plus") }} Create user</button>
+    <div class="muted" style="font-size:13px"><strong>Admin</strong>: everything · <strong>HR</strong>: people, leave, recruitment · <strong>Supervisor</strong>: attendance, work orders, leads · <strong>Employee</strong>: own portal</div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{# Animated illustration of the detailed report owners receive at the end of every month #}
+<div class="report-art" dir="ltr" data-reveal="zoom" aria-hidden="true">
+  <svg viewBox="0 0 420 460">
+    <defs>
+      <linearGradient id="rg-head" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient>
+    </defs>
+    <rect x="72" y="58" width="300" height="380" rx="22" fill="#cfe9f5" opacity=".55" transform="rotate(5 222 248)"/>
+    <rect x="48" y="40" width="300" height="390" rx="22" fill="#fff" stroke="#e4ebf3" stroke-width="2"/>
+    <rect x="48" y="40" width="300" height="78" rx="22" fill="url(#rg-head)"/>
+    <rect x="48" y="96" width="300" height="22" fill="url(#rg-head)"/>
+    <text x="74" y="76" class="r-title">{{ _("Monthly report") }}</text>
+    <text x="74" y="101" class="r-sub">{{ _("Prepared for the property owner") }}</text>
+    <g transform="translate(298 58)" class="r-cal"><rect width="34" height="36" rx="6" fill="#fff"/><rect width="34" height="11" rx="4" fill="#0a2240"/><text x="17" y="30" class="r-day">30</text></g>
+
+    {% for label in [_("Preventive maintenance"), _("Maintenance log"), _("Inspection records"), _("Provider performance")] %}
+    {% set y = 140 + loop.index0 * 40 %}
+    <g class="r-row" style="--i: {{ loop.index0 }}">
+      <circle cx="84" cy="{{ y }}" r="13" class="r-check-bg"/>
+      <path d="M78 {{ y }}l4 4 8-8" class="r-check"/>
+      <text x="108" y="{{ y + 5 }}" class="r-label">{{ label }}</text>
+      <rect x="282" y="{{ y - 4 }}" width="44" height="8" rx="4" fill="#e4ebf3"/>
+      <rect x="282" y="{{ y - 4 }}" width="{{ [36, 44, 28, 40][loop.index0] }}" height="8" rx="4" class="r-bar"/>
+    </g>
+    {% endfor %}
+
+    <g transform="translate(74 330)">
+      {% for h in [34, 52, 40, 66, 58, 78] %}
+      <rect x="{{ loop.index0 * 24 }}" y="{{ 80 - h }}" width="14" height="{{ h }}" rx="4" class="r-col" style="--i: {{ loop.index0 }}"/>
+      {% endfor %}
+      <path d="M0 80h144" stroke="#e4ebf3" stroke-width="2"/>
+    </g>
+    <g transform="translate(286 370)">
+      <circle r="34" fill="none" stroke="#e4ebf3" stroke-width="10"/>
+      <circle r="34" fill="none" stroke="url(#rg-head)" stroke-width="10" stroke-linecap="round" class="r-donut" transform="rotate(-90)"/>
+      <path d="M-11 0l7 7 14-14" class="r-donut-check"/>
+    </g>
+    <g class="r-stamp" transform="translate(196 304) rotate(-6)">
+      <rect x="-60" y="-16" width="120" height="32" rx="9" fill="none" stroke="#16a34a" stroke-width="3"/>
+      <text y="5" class="r-stamp-t">{{ _("SENT TO OWNER") }}</text>
+    </g>
+  </svg>
+  <span class="r-float f1">{{ icon("wrench") }}</span>
+  <span class="r-float f2">{{ icon("receipt") }}</span>
+  <span class="r-float f3">{{ icon("search") }}</span>
+</div>

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Runtime data: applicant CVs and attendance selfies are personal data
+uploads/
+server.log
+*.log
+
+# Source documents kept locally, not part of the website
+Brillianz_Company_Profile*.pdf
+services (2).jpeg
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

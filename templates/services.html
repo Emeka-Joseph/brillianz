@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Our Services") }} · {{ site.company_name_ar if is_ar() else site.company_name }}{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="bg" style="background-image:url('{{ url_for('static', filename='img/lobby.jpg') }}')"></div>
+  <div class="container">
+    <div class="crumbs"><a href="{{ url_for('public.home') }}">{{ _("Home") }}</a> / <span>{{ _("Services") }}</span></div>
+    <h1>{{ _("{n} expert services,", n=services|length) }} <span class="grad-text">{{ _("one brilliant standard") }}</span></h1>
+    <p>{{ _("A complete range of hard and soft services, delivered by our own supervised teams or through our network of trusted specialist providers.") }}</p>
+  </div>
+  <div class="big-ico" aria-hidden="true">{{ svc_icon("property") }}</div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="svc-grid">
+      {% for s in services %}
+      <a href="{{ url_for('public.service_detail', slug=s.slug) }}" class="svc-card" data-tilt data-reveal style="--d: {{ (loop.index0 % 3) * 0.1 }}s">
+        <div class="media">
+          <span class="img-clip"><img src="{{ url_for('static', filename='img/' ~ s.image) }}" alt="{{ s.image_alt }}" loading="lazy"></span>
+          <span class="svc-num">{{ "%02d"|format(loop.index) }}</span>
+          <span class="ico-wrap">{{ svc_icon(s.icon) }}</span>
+        </div>
+        <div class="body">
+          <h3>{{ tr(s, "name") }}</h3>
+          <p class="alt-name svc-alt">{{ s.name if is_ar() else s.name_ar }}</p>
+          <p>{{ tr(s, "summary") }}</p>
+          <span class="more">{{ _("View service") }} {{ icon("arrow") }}</span>
+        </div>
+        <span class="glare"></span>
+      </a>
+      {% endfor %}
+      {% set used = services|length %}
+      {% include "partials/package_cta.html" %}
+    </div>
+  </div>
+</section>
+
+<section class="section approach">
+  <span class="deco-grid" aria-hidden="true"></span>
+  <div class="container split">
+    {% include "partials/hub.html" %}
+    <div data-reveal="right">
+      <span class="eyebrow">{{ _("Our approach") }}</span>
+      <h2 style="font-size:clamp(30px,3.8vw,46px)">{{ _("One manager. Every service. One report.") }}</h2>
+      <p class="muted-lg">{{ _("One accountable manager sources, coordinates and supervises every service, and sends the owner a detailed report at the end of every month.") }}</p>
+      <ul class="checks" style="grid-template-columns:1fr">
+        <li>{{ icon("check") }} {{ _("Quality before cost") }}</li>
+        <li>{{ icon("check") }} {{ _("Single point of contact") }}</li>
+        <li>{{ icon("check") }} {{ _("One consolidated invoice") }}</li>
+      </ul>
+      <a href="{{ url_for('public.quote') }}" class="btn btn-primary">{{ _("Get a free quote") }} {{ icon("arrow") }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-soft">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <span class="eyebrow">{{ _("Everything your building needs") }}</span>
+      <h2>{{ _("Hard & soft services,") }} <span class="grad-text">{{ _("one management") }}</span></h2>
+    </div>
+    {% include "partials/hard_soft.html" %}
+  </div>
+</section>
+{% endblock %}
