@@ -24,3 +24,6 @@ services (2).jpeg
 Thumbs.db
 .vscode/
 .idea/
+
+# Project notes kept local only
+README.md
