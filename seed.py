@@ -5,7 +5,10 @@ Runs automatically on first start (only fills empty tables), or manually:
 """
 import json
 import random
+import secrets
 from datetime import date, datetime, timedelta, time
+
+from flask import current_app
 
 from models import (db, User, Department, Employee, Attendance, LeaveRequest, Service, WorkOrder,
                     Inquiry, JobPosting, Office, Testimonial, Setting)
@@ -153,6 +156,15 @@ JOBS = [
      "4+ years B2B sales in FM or real estate\nExcellent presentation skills\nArabic and English"),
 ]
 
+def first_run_password(setting, email):
+    """Password for an account created on first start: from .env, or a random one shown once in the console."""
+    password = current_app.config.get(setting)
+    if not password:
+        password = secrets.token_urlsafe(12)
+        print(f"*** Created login {email} with password: {password}  (change it after signing in) ***", flush=True)
+    return password
+
+
 def seed_all():
     if Setting.query.count() == 0:
         for k, v in {
@@ -181,8 +193,9 @@ def seed_all():
     db.session.commit()
 
     if User.query.filter_by(role="admin").count() == 0:
-        admin = User(email="admin@brillianzfm.com", role="admin")
-        admin.set_password("Admin@123")
+        email = current_app.config["ADMIN_EMAIL"]
+        admin = User(email=email, role="admin")
+        admin.set_password(first_run_password("ADMIN_PASSWORD", email))
         db.session.add(admin)
         db.session.commit()
 
@@ -325,8 +338,9 @@ def seed_demo_staff():
     db.session.flush()
 
     # A demo employee login
-    demo = User(email="employee@brillianzfm.com", role="employee")
-    demo.set_password("Employee@123")
+    email = current_app.config["DEMO_EMPLOYEE_EMAIL"]
+    demo = User(email=email, role="employee")
+    demo.set_password(first_run_password("DEMO_EMPLOYEE_PASSWORD", email))
     db.session.add(demo)
     employees[2].user = demo
 

@@ -3,20 +3,20 @@
 Flask + MySQL (XAMPP) website with an employee-management back office.
 
 ## Run
-1. Start **MySQL** in the XAMPP control panel (default `root`, no password).
+1. Start **MySQL** in the XAMPP control panel.
 2. `pip install -r requirements.txt`
-3. `python app.py` and open **http://127.0.0.1:7000**
+3. Copy `.env.example` to `.env` and fill in your own values (secret key, database login, first admin account).
+   `.env` and `config.py` are git-ignored, so passwords and keys never reach the repository.
+4. `python app.py` and open **http://127.0.0.1:7000**
 
 The `brillianz_fm` database, tables and demo data are created automatically on first start, and
 existing databases are upgraded in place on start-up (`migrate.py` adds new columns; `seed.py` applies one-time data updates).
 Upgrading from the old `brilliant_fm` database? Stop the site and run `python rename_db.py` once.
-Change DB credentials with env vars `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_NAME`; port with `PORT`.
 
-## Logins (change these!)
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@brillianzfm.com | Admin@123 |
-| Employee (demo) | employee@brillianzfm.com | Employee@123 |
+## First login
+On the very first start the admin and demo employee accounts are created with the passwords from `.env`
+(`ADMIN_PASSWORD`, `DEMO_EMPLOYEE_PASSWORD`). If those are empty, random passwords are generated and printed once
+in the console. Change them after signing in (sidebar → Change password).
 
 ## What's inside
 - **English / Arabic**: every public page has a full Arabic version (right-to-left layout, Arabic font). The language

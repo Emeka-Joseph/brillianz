@@ -3,7 +3,12 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Secrets and local settings (templates without secrets: .env.example, config_example.py)
 .env
+.env.*
+!.env.example
+config.py
 
 # Runtime data: applicant CVs and attendance selfies are personal data
 uploads/

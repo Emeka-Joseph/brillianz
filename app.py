@@ -7,7 +7,10 @@ from flask import Flask, render_template, request, session, abort
 from markupsafe import Markup
 from flask_login import LoginManager
 
-from config import Config
+try:
+    from config import Config  # local, git-ignored settings
+except ImportError:
+    from config_example import Config
 from models import db, User, Service, Office, Setting
 
 login_manager = LoginManager()

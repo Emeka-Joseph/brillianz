@@ -9,7 +9,10 @@ Safe to run more than once. Run it with the website stopped:  python rename_db.p
 """
 import pymysql
 
-from config import Config
+try:
+    from config import Config  # local, git-ignored settings
+except ImportError:
+    from config_example import Config
 
 OLD_DB = "brilliant_fm"
 REPLACEMENTS = [
