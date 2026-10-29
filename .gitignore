@@ -27,3 +27,6 @@ Thumbs.db
 
 # Project notes kept local only
 README.md
+
+# cPanel upload bundle (zip + database export) built locally
+cpanel_upload/

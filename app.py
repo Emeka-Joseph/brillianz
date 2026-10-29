@@ -24,13 +24,19 @@ def load_user(user_id):
 
 
 def ensure_database(cfg):
-    """Create the MySQL database on the XAMPP server if it does not exist yet."""
+    """Create the MySQL database on the XAMPP server if it does not exist yet.
+
+    On cPanel the database is created in "MySQL Databases" and the user may not create databases,
+    so a refused CREATE DATABASE is ignored and the existing database is used.
+    """
     conn = pymysql.connect(host=cfg.DB_HOST, port=cfg.DB_PORT, user=cfg.DB_USER, password=cfg.DB_PASSWORD)
     try:
         with conn.cursor() as cur:
             cur.execute(f"CREATE DATABASE IF NOT EXISTS `{cfg.DB_NAME}` "
                         "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
         conn.commit()
+    except pymysql.MySQLError:
+        pass
     finally:
         conn.close()
 

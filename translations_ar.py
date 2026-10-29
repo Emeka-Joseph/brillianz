@@ -261,7 +261,7 @@ AR = {
     "Join a growing team of cleaners, technicians, security guards, supervisors and managers who keep Kuwait's buildings at their best.":
         "انضم إلى فريق متنامٍ من عمال النظافة والفنيين وحراس الأمن والمشرفين والمديرين الذين يحافظون على مباني الكويت في أفضل حال.",
     "Legal residency & insurance": "إقامة نظامية وتأمين",
-    "Full visa sponsorship, medical insurance and transparent contracts.": "كفالة كاملة للإقامة وتأمين صحي وعقود واضحة.",
+    "Visa sponsorship, medical insurance and transparent contracts.": "كفالة الإقامة وتأمين صحي وعقود واضحة.",
     "Training & promotion": "التدريب والترقية",
     "Certified training programmes and a clear path from crew to supervisor.": "برامج تدريب معتمدة ومسار واضح من عامل إلى مشرف.",
     "Staff welfare": "رعاية الموظفين",

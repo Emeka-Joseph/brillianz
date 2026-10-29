@@ -28,6 +28,10 @@ load_env()
 class Config:
     # Without SECRET_KEY a random one is used, which signs everyone out whenever the server restarts.
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    # Set SESSION_COOKIE_SECURE=1 once the live site runs on https:// so login cookies are never sent over plain http
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "0") == "1"
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # XAMPP MySQL (MariaDB) defaults: root with no password on port 3306
     DB_USER = os.environ.get("DB_USER", "root")
